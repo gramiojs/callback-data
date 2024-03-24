@@ -44,7 +44,7 @@ export class CallbackData<
 	}
 
 	regexp() {
-		return new RegExp(`^${this.id}|(.+)$`);
+		return new RegExp(`^${this.id}\\|(.+)$`);
 	}
 
 	pack(data: Schema) {
