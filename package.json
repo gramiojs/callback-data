@@ -1,23 +1,23 @@
 {
-  "name": "@gramio/callback-data",
-  "version": "0.0.1",
-  "main": "dist/index.js",
-  "devDependencies": {
-    "@types/bun": "^1.0.7",
-    "gramio": "^0.0.20",
-    "typescript": "^5.3.3"
-  },
-  "description": "WIP",
-  "files": [
-    "dist"
-  ],
-  "homepage": "https://github.com/gramiojs/",
-  "keywords": [
-    "gramio"
-  ],
-  "readme": "https://gramio.netlify.app/",
-  "scripts": {
-    "prepublishOnly": "tsc && bunx tsc-alias"
-  },
-  "type": "commonjs"
+    "name": "@gramio/callback-data",
+    "version": "0.0.2",
+    "main": "dist/index.js",
+    "devDependencies": {
+        "@types/bun": "^1.0.7",
+        "gramio": "^0.0.20",
+        "typescript": "^5.3.3"
+    },
+    "description": "WIP",
+    "files": [
+        "dist"
+    ],
+    "homepage": "https://github.com/gramiojs/",
+    "keywords": [
+        "gramio"
+    ],
+    "readme": "https://gramio.netlify.app/",
+    "scripts": {
+        "prepublishOnly": "tsc && bunx tsc-alias"
+    },
+    "type": "commonjs"
 }
