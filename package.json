@@ -1,11 +1,11 @@
 {
     "name": "@gramio/callback-data",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "main": "dist/index.js",
     "devDependencies": {
-        "@types/bun": "^1.0.7",
-        "gramio": "^0.0.20",
-        "typescript": "^5.3.3"
+        "@types/bun": "^1.1.1",
+        "gramio": "^0.0.31",
+        "typescript": "^5.4.5"
     },
     "description": "Library for easily manage callback-data",
     "files": [

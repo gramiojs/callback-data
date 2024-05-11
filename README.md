@@ -8,4 +8,25 @@ Library for easily manage callback-data.
 
 WIP. JSON.stringify is temporarily used under the hood.
 
+## Usage with [GramIO](https://gramio.netlify.app/)
+
+```typescript
+const someData = new CallbackData("example").number("id");
+
+new Bot()
+    .command("start", (context) =>
+        context.send("some", {
+            reply_markup: new InlineKeyboard().text(
+                "example",
+                someData.pack({
+                    id: 1,
+                })
+            ),
+        })
+    )
+    .callbackQuery(someData, (context) => {
+        context.queryData; // is type-safe
+    });
+```
+
 Use is not recommended at this stage!
