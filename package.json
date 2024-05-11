@@ -7,17 +7,25 @@
         "gramio": "^0.0.20",
         "typescript": "^5.3.3"
     },
-    "description": "WIP",
+    "description": "Library for easily manage callback-data",
     "files": [
         "dist"
     ],
     "homepage": "https://github.com/gramiojs/",
     "keywords": [
-        "gramio"
+        "gramio",
+        "callback-data",
+        "telegram",
+        "telegram-bot-api"
     ],
     "readme": "https://gramio.netlify.app/",
     "scripts": {
-        "prepublishOnly": "tsc && bunx tsc-alias"
+        "prepublishOnly": "tsc && bunx tsc-alias",
+        "jsr": "bun scripts/release-jsr.ts"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/gramiojs/callback-data"
     },
     "type": "commonjs"
 }
