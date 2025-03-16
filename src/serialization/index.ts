@@ -72,6 +72,8 @@ export class CompactSerializer {
 				return field.enumValues!.indexOf(value).toString(36);
 			case "string":
 				return Buffer.from(value).toString("base64url");
+			case "boolean":
+				return value ? '1' : '0';
 			default:
 				throw new Error(`Unsupported type: ${field.type}`);
 		}
@@ -85,6 +87,8 @@ export class CompactSerializer {
 				return field.enumValues![Number.parseInt(value, 36)];
 			case "string":
 				return Buffer.from(value, "base64url").toString("utf8");
+			case "boolean":
+				return value === '1';
 			default:
 				throw new Error(`Unsupported type: ${field.type}`);
 		}

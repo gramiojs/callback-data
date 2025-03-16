@@ -116,4 +116,17 @@ describe('CompactSerializer', () => {
 
     expect(getBytesLength(serialized)).toBeLessThan(getBytesLength(obj));
   });
+
+  test('boolean serialization', () => {
+    const schema = { 
+        required: [{ key: 'flag'  as const, type: 'boolean' as const }],
+        optional: [] 
+    };
+    
+    const serialized = CompactSerializer.serialize(schema, { flag: true });
+    expect(serialized).toMatch(/;1$/);
+    
+    const deserialized = CompactSerializer.deserialize(schema, serialized);
+    expect(deserialized.flag).toBe(true);
+}); 
 });

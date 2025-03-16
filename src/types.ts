@@ -31,12 +31,12 @@ export interface Field<Optional extends boolean = false> extends FieldOptions<Al
 export type Schema = {
 	required: {
 		key: string;
-		type: "number" | "string" | "enum";
+		type: AllowedTypes;
 		enumValues?: string[];
 	}[];
 	optional: {
 		key: string;
-		type: "number" | "string" | "enum";
+		type: AllowedTypes;
 		enumValues?: string[];
 	}[];
 };
