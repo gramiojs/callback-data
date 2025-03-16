@@ -1,5 +1,6 @@
 import { expect, test, describe, beforeEach } from 'bun:test';
 import { CompactSerializer, Schema } from '../src/serialization';
+import { getBytesLength } from './utils';
 
 describe('CompactSerializer', () => {
   const testSchema: Schema = {
@@ -24,8 +25,8 @@ describe('CompactSerializer', () => {
     const serialized = CompactSerializer.serialize(testSchema, obj);
     const deserialized = CompactSerializer.deserialize(testSchema, serialized);
     
-    expect(serialized.length).toMatchInlineSnapshot(`17`);
-    expect(JSON.stringify(obj).length).toMatchInlineSnapshot(`57`);
+    expect(getBytesLength(serialized)).toMatchInlineSnapshot(`17`);
+    expect(getBytesLength(obj)).toMatchInlineSnapshot(`57`);
     
     expect(deserialized).toEqual(obj);
   });
@@ -38,8 +39,9 @@ describe('CompactSerializer', () => {
 
     const serialized = CompactSerializer.serialize(testSchema, obj);
     const deserialized = CompactSerializer.deserialize(testSchema, serialized);
-    expect(serialized.length).toMatchInlineSnapshot(`7`);
-    expect(JSON.stringify(obj).length).toMatchInlineSnapshot(`23`);
+    
+    expect(getBytesLength(serialized)).toMatchInlineSnapshot(`7`);
+    expect(getBytesLength(obj)).toMatchInlineSnapshot(`23`);
     
     expect(deserialized).toEqual({
       id: 42,
@@ -56,8 +58,9 @@ describe('CompactSerializer', () => {
 
     const serialized = CompactSerializer.serialize(testSchema, obj);
     const deserialized = CompactSerializer.deserialize(testSchema, serialized);
-    expect(serialized.length).toMatchInlineSnapshot(`32`);
-    expect(JSON.stringify(obj).length).toMatchInlineSnapshot(`51`);
+
+    expect(getBytesLength(serialized)).toMatchInlineSnapshot(`32`);
+    expect(getBytesLength(obj)).toMatchInlineSnapshot(`51`);
     
     expect(deserialized.name).toBe('Contains;semicolon');
   });
@@ -70,8 +73,9 @@ describe('CompactSerializer', () => {
 
     const serialized = CompactSerializer.serialize(testSchema, obj);
     const deserialized = CompactSerializer.deserialize(testSchema, serialized);
-    expect(serialized.length).toMatchInlineSnapshot(`16`);
-    expect(JSON.stringify(obj).length).toMatchInlineSnapshot(`38`);
+
+    expect(getBytesLength(serialized)).toMatchInlineSnapshot(`16`);
+    expect(getBytesLength(obj)).toMatchInlineSnapshot(`38`);
     
     expect(deserialized.id).toBe(Number.MAX_SAFE_INTEGER);
   });
@@ -84,13 +88,17 @@ describe('CompactSerializer', () => {
     };
 
     const serialized = CompactSerializer.serialize(testSchema, obj);
-    console.log(serialized, serialized.length);
-    expect(serialized.length).toMatchInlineSnapshot(`54`);
+    console.log(serialized, getBytesLength(serialized));
+    
     const deserialized = CompactSerializer.deserialize(testSchema, serialized);
-    console.log(deserialized, JSON.stringify(deserialized).length);
-    expect(JSON.stringify(deserialized).length).toMatchInlineSnapshot(`51`);
+    console.log(deserialized, getBytesLength(deserialized));
+
+    expect(getBytesLength(serialized)).toMatchInlineSnapshot(`54`);
+    expect(getBytesLength(deserialized)).toMatchInlineSnapshot(`51`);
+
+
     expect(deserialized.name).toBe('Анна Каренина;Тест');
 
-    expect(serialized.length).toBeLessThan(JSON.stringify(obj).length);
+    expect(getBytesLength(serialized)).toBeLessThan(getBytesLength(obj));
   });
 });
