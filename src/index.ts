@@ -119,7 +119,12 @@ export class CallbackData<
 	 * Method that return {@link RegExp} to match this {@link CallbackData}
 	 */
 	regexp() {
-		return new RegExp(`^${this.id}\\|(.+)$`);
+		// return new RegExp(`^${this.id}\\|(.+)$`);
+		return new RegExp(`^${this.id};(.+)$`);
+	}
+
+	filter(data: string) {
+		return data.startsWith(this.id+";");
 	}
 
 	/**
@@ -140,7 +145,7 @@ export class CallbackData<
 	 * });
 	 * ```
 	 */
-	pack(data: SchemaType) {
+	pack<const T extends SchemaType>(data: T) {
 		return `${this.id};${CompactSerializer.serialize(this.schema, data)}`;
 	}
 
@@ -149,9 +154,9 @@ export class CallbackData<
 	 * @param data String with data (please check that this string matched by {@link CallbackData.regexp})
 	 */
 	unpack(data: string): SchemaType {
-		const [id, json] = data.split(";");
+		const [id, ...json] = data.split(";");
 		if (id !== this.id) throw new Error("WIP. id mismatch");
 
-		return CompactSerializer.deserialize(this.schema, json);
+		return CompactSerializer.deserialize(this.schema, json.join(";"));
 	}
 }
