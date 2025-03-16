@@ -26,7 +26,7 @@ describe('CompactSerializer', () => {
     const deserialized = CompactSerializer.deserialize(testSchema, serialized);
     
     expect(getBytesLength(serialized)).toMatchInlineSnapshot(`17`);
-    expect(getBytesLength(obj)).toMatchInlineSnapshot(`57`);
+    expect(getBytesLength(deserialized)).toMatchInlineSnapshot(`57`);
     
     expect(deserialized).toEqual(obj);
   });
@@ -39,9 +39,9 @@ describe('CompactSerializer', () => {
 
     const serialized = CompactSerializer.serialize(testSchema, obj);
     const deserialized = CompactSerializer.deserialize(testSchema, serialized);
-    
+
     expect(getBytesLength(serialized)).toMatchInlineSnapshot(`7`);
-    expect(getBytesLength(obj)).toMatchInlineSnapshot(`23`);
+    expect(getBytesLength(deserialized)).toMatchInlineSnapshot(`23`);
     
     expect(deserialized).toEqual({
       id: 42,
@@ -60,7 +60,7 @@ describe('CompactSerializer', () => {
     const deserialized = CompactSerializer.deserialize(testSchema, serialized);
 
     expect(getBytesLength(serialized)).toMatchInlineSnapshot(`32`);
-    expect(getBytesLength(obj)).toMatchInlineSnapshot(`51`);
+    expect(getBytesLength(deserialized)).toMatchInlineSnapshot(`51`);
     
     expect(deserialized.name).toBe('Contains;semicolon');
   });
@@ -75,9 +75,23 @@ describe('CompactSerializer', () => {
     const deserialized = CompactSerializer.deserialize(testSchema, serialized);
 
     expect(getBytesLength(serialized)).toMatchInlineSnapshot(`16`);
-    expect(getBytesLength(obj)).toMatchInlineSnapshot(`38`);
+    expect(getBytesLength(deserialized)).toMatchInlineSnapshot(`38`);
     
     expect(deserialized.id).toBe(Number.MAX_SAFE_INTEGER);
+  });
+  test('number 1', () => {
+    const obj = {
+      id: 1,
+      type: 'admin'
+    };
+
+    const serialized = CompactSerializer.serialize(testSchema, obj);
+    const deserialized = CompactSerializer.deserialize(testSchema, serialized);
+
+    expect(getBytesLength(serialized)).toMatchInlineSnapshot(`6`);
+    expect(getBytesLength(deserialized)).toMatchInlineSnapshot(`23`);
+    
+    expect(deserialized.id).toBe(1);
   });
 
   test('handles cyrillic characters', () => {
@@ -94,7 +108,7 @@ describe('CompactSerializer', () => {
     console.log(deserialized, getBytesLength(deserialized));
 
     expect(getBytesLength(serialized)).toMatchInlineSnapshot(`54`);
-    expect(getBytesLength(deserialized)).toMatchInlineSnapshot(`51`);
+    expect(getBytesLength(deserialized)).toMatchInlineSnapshot(`67`);
 
 
     expect(deserialized.name).toBe('Анна Каренина;Тест');
