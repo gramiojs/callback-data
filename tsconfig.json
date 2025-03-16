@@ -12,9 +12,9 @@
     "strict": true,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
+    "emitDeclarationOnly": true,
+    "allowImportingTsExtensions": true,
     "declaration": true,
-    "baseUrl": "./src",
-    "rootDir": "./src",
     "outDir": "./dist"
   },
   "include": ["src"]

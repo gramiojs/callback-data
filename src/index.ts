@@ -5,7 +5,8 @@
  */
 
 import { createHash } from "node:crypto";
-import type { AddField, Field, Prettify } from "types";
+import type { AddField, Field, Prettify } from "./types.ts";
+import { Schema } from "./serialization/index.ts";
 
 /**
  * Class-helper that construct schema and serialize/deserialize with {@link CallbackData.pack} and {@link CallbackData.unpack} methods
@@ -32,12 +33,14 @@ import type { AddField, Field, Prettify } from "types";
  */
 export class CallbackData<
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	Schema extends Record<string, any> = Record<never, never>,
+	SchemaType extends Record<string, any> = Record<never, never>,
 > {
 	/** `id` for identify the CallbackData */
 	id: string;
-	/** Schema used for serialize/deserialize with {@link CallbackData.pack} and {@link CallbackData.unpack} methods */
-	schema: Record<string, Field> = {};
+	// /** Schema used for serialize/deserialize with {@link CallbackData.pack} and {@link CallbackData.unpack} methods */
+	// schema: Record<string, Field> = {};
+	 
+	protected schema: Schema = {} as Schema;
 
 	/** Pass the `id` with which you can identify the CallbackData */
 	constructor(id: string) {
