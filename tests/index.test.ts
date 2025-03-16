@@ -89,7 +89,7 @@ describe('Serialization/Deserialization', () => {
     const packed = schema.pack(testData);
     const unpacked = schema.unpack(packed);
     
-    expect(unpacked.text).toBe(testData.text);
+    expect(unpacked?.text).toBe(testData.text);
   });
 
   test('should handle number boundaries', () => {
@@ -99,7 +99,7 @@ describe('Serialization/Deserialization', () => {
     const packed = schema.pack(testData);
     const unpacked = schema.unpack(packed);
     
-    expect(unpacked.max).toBe(testData.max);
+    expect(unpacked?.max).toBe(testData.max);
   });
 
   test('should handle boolean values', () => {
@@ -110,8 +110,8 @@ describe('Serialization/Deserialization', () => {
     const testData = { flag1: true, flag2: false };
     const unpacked = schema.unpack(schema.pack(testData));
     
-    expect(unpacked.flag1).toBe(true);
-    expect(unpacked.flag2).toBe(false);
+    expect(unpacked?.flag1).toBe(true);
+    expect(unpacked?.flag2).toBe(false);
   });
 
 //   test('should apply default values for optional fields', () => {
@@ -136,7 +136,7 @@ describe('Serialization/Deserialization', () => {
     const unpacked = schema.unpack(packed);
     
     console.log(unpacked);
-    expect(unpacked.status).toBe('active');
+    expect(unpacked?.status).toBe('active');
   });
 
   test('should handle empty optional fields', () => {

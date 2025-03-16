@@ -47,7 +47,8 @@ export class CallbackData<
 
 	/** Pass the `id` with which you can identify the CallbackData */
 	constructor(id: string) {
-		this.id = createHash("md5").update(id).digest("hex").slice(0, 6);
+		this.id = createHash("sha1").update(id).digest('base64url')
+		.replace(/[_-]/g, '').slice(0, 6);
 	}
 
 	/**
@@ -154,9 +155,13 @@ export class CallbackData<
 	 * @param data String with data (please check that this string matched by {@link CallbackData.regexp})
 	 */
 	unpack(data: string): SchemaType {
-		const [id, ...json] = data.split(";");
+		const separatorIndex = data.indexOf(';');
+		const id = data.slice(0, separatorIndex);
 		if (id !== this.id) throw new Error("WIP. id mismatch");
 
-		return CompactSerializer.deserialize(this.schema, json.join(";"));
+		return CompactSerializer.deserialize(
+			this.schema,
+			data.slice(separatorIndex + 1)
+		  );
 	}
 }
