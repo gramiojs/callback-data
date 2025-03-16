@@ -5,8 +5,8 @@
  */
 
 import { createHash } from "node:crypto";
-import type { AddField, Field, Prettify } from "./types.ts";
-import { Schema } from "./serialization/index.ts";
+import type { AddField, Field, Prettify, FieldOptions, Schema } from "./types.ts";
+import { CompactSerializer } from "./serialization/index.ts";
 
 /**
  * Class-helper that construct schema and serialize/deserialize with {@link CallbackData.pack} and {@link CallbackData.unpack} methods
@@ -40,7 +40,10 @@ export class CallbackData<
 	// /** Schema used for serialize/deserialize with {@link CallbackData.pack} and {@link CallbackData.unpack} methods */
 	// schema: Record<string, Field> = {};
 	 
-	protected schema: Schema = {} as Schema;
+	protected schema: Schema = {
+		optional: [],
+		required: [],
+	} as Schema;
 
 	/** Pass the `id` with which you can identify the CallbackData */
 	constructor(id: string) {
@@ -51,12 +54,15 @@ export class CallbackData<
 	 * Add `string` property to schema
 	 * @param key Name of property
 	 */
-	string<Key extends string>(
+	string<Key extends string, Optional extends boolean = false>(
 		key: Key,
-	): CallbackData<Prettify<Schema & AddField<string, Key>>> {
-		this.schema[key] = {
+		options?: FieldOptions<"string", Optional>,
+	): CallbackData<Prettify<SchemaType & AddField<"string", Key, Optional>>> {
+		this.schema[options?.optional ? "optional" : "required"].push({
+			key,
 			type: "string",
-		};
+			// default: options?.default,
+		});
 
 		return this;
 	}
@@ -65,12 +71,15 @@ export class CallbackData<
 	 * Add `number` property to schema
 	 * @param key Name of property
 	 */
-	number<Key extends string>(
+	number<Key extends string, Optional extends boolean = false>(
 		key: Key,
-	): CallbackData<Prettify<Schema & AddField<number, Key>>> {
-		this.schema[key] = {
+		options?: FieldOptions<"number", Optional>,
+	): CallbackData<Prettify<SchemaType & AddField<"number", Key, Optional>>> {
+		this.schema[options?.optional ? "optional" : "required"].push({
+			key,
 			type: "number",
-		};
+			// default: options?.default,
+		});
 
 		return this;
 	}
@@ -79,12 +88,29 @@ export class CallbackData<
 	 * Add `boolean` property to schema
 	 * @param key Name of property
 	 */
-	boolean<Key extends string>(
+	boolean<Key extends string, Optional extends boolean = false>(
 		key: Key,
-	): CallbackData<Prettify<Schema & AddField<boolean, Key>>> {
-		this.schema[key] = {
+		options?: FieldOptions<"boolean", Optional>,
+	): CallbackData<Prettify<SchemaType & AddField<"boolean", Key, Optional>>> {
+		this.schema[options?.optional ? "optional" : "required"].push({
+			key,
 			type: "boolean",
-		};
+				default: options?.default,
+		});
+
+		return this;
+	}
+
+	enum<Key extends string, Optional extends boolean = false, const T extends any[] = never>(
+		key: Key,
+		enumValues:  T,
+		options?: FieldOptions<"enum", Optional, T>,
+	): CallbackData<Prettify<SchemaType & AddField<"enum", Key, Optional, T[number]>>> {
+		this.schema[options?.optional ? "optional" : "required"].push({
+			key,
+			type: "enum",
+			enumValues,
+		});
 
 		return this;
 	}
@@ -114,18 +140,18 @@ export class CallbackData<
 	 * });
 	 * ```
 	 */
-	pack(data: Schema) {
-		return `${this.id}|${JSON.stringify(data)}`;
+	pack(data: SchemaType) {
+		return `${this.id};${CompactSerializer.serialize(this.schema, data)}`;
 	}
 
 	/**
 	 * A method for [`deserializing`](https://developer.mozilla.org/en-US/docs/Glossary/Deserialization) data **object** by **schema** from a **string**
 	 * @param data String with data (please check that this string matched by {@link CallbackData.regexp})
 	 */
-	unpack(data: string): Schema {
-		const [id, json] = data.split("|");
+	unpack(data: string): SchemaType {
+		const [id, json] = data.split(";");
 		if (id !== this.id) throw new Error("WIP. id mismatch");
 
-		return JSON.parse(json);
+		return CompactSerializer.deserialize(this.schema, json);
 	}
 }

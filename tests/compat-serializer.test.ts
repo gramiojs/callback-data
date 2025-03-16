@@ -1,5 +1,6 @@
 import { expect, test, describe, beforeEach } from 'bun:test';
-import { CompactSerializer, Schema } from '../src/serialization';
+import { CompactSerializer } from '../src/serialization';
+import type { Schema } from '../src/types';
 import { getBytesLength } from './utils';
 
 describe('CompactSerializer', () => {

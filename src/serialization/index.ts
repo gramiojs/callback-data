@@ -1,15 +1,4 @@
-export type Schema = {
-	required: {
-		key: string;
-		type: "number" | "string" | "enum";
-		enumValues?: string[];
-	}[];
-	optional: {
-		key: string;
-		type: "number" | "string" | "enum";
-		enumValues?: string[];
-	}[];
-};
+import type { Schema } from "../types.ts";
 
 export class CompactSerializer {
 	static serialize(schema: Schema, obj: any): string {
