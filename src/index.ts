@@ -95,7 +95,7 @@ export class CallbackData<
 		this.schema[options?.optional ? "optional" : "required"].push({
 			key,
 			type: "boolean",
-				default: options?.default,
+				// default: options?.default,
 		});
 
 		return this;

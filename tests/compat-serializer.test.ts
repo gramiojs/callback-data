@@ -128,5 +128,32 @@ describe('CompactSerializer', () => {
     
     const deserialized = CompactSerializer.deserialize(schema, serialized);
     expect(deserialized.flag).toBe(true);
-}); 
+});
+
+  test('string field serialization', () => {
+    const schema = { 
+      required: [{ key: 'text' as const, type: 'string' as const }],
+      optional: []
+    };
+
+    const testData = { text: 'TestString' };
+    const serialized = CompactSerializer.serialize(schema, testData);
+    const deserialized = CompactSerializer.deserialize(schema, serialized);
+    
+    expect(deserialized.text).toBe('TestString');
+    expect(getBytesLength(serialized)).toMatchInlineSnapshot(`17`);
+  });
+
+  test('should handle empty strings', () => {
+    const schema = { 
+      required: [{ key: 'empty' as const, type: 'string' as const }],
+      optional: []
+    };
+
+    const testData = { empty: '' };
+    const serialized = CompactSerializer.serialize(schema, testData);
+    const deserialized = CompactSerializer.deserialize(schema, serialized);
+    
+    expect(deserialized.empty).toBe('');
+  });
 });
