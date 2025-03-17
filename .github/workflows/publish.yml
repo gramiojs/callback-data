@@ -17,20 +17,23 @@ jobs:
                   fetch-depth: 0
 
             - name: Install Bun
-              uses: oven-sh/setup-bun@v1
+              uses: oven-sh/setup-bun@v2
 
             - id: changelog
               name: Generate changelog
               run: bun scripts/generate-changelog.ts
 
             - name: Install modules
-              run: bun install
+              run: bun install 
 
             - name: Prepare to JSR publish
               run: bun jsr
 
             - name: Type-check
-              run: tsc --noEmit
+              run: tsc --noEmit 
+
+            - name: Test
+              run: bun test:memory
 
             - name: Publish package to JSR
               run: bunx jsr publish --allow-dirty
