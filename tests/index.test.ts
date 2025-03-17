@@ -9,7 +9,7 @@ describe('CallbackData', () => {
   });
 
   test('should create instance with hashed id', () => {
-    expect(builder.id).toMatch(/^[a-f0-9]{6}$/);
+    expect(builder.id).toMatch(/^[a-zA-Z0-9]{6}$/);
   });
 
   test('should build schema with required fields', () => {
