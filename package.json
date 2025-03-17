@@ -3,6 +3,7 @@
     "version": "0.0.3",
     "main": "dist/index.js",
     "devDependencies": {
+        "@biomejs/biome": "^1.9.4",
         "@types/bun": "^1.2.5",
         "gramio": "^0.2.4",
         "typescript": "^5.8.2"
