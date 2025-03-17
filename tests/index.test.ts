@@ -256,4 +256,12 @@ describe('Serialization/Deserialization', () => {
     
     expect(unpacked).toEqual({});
   });
+
+  test('Parse correctly legacy serialized data', () => {
+    const schema = new CallbackData('legacy').string('name').number('age');
+    const packed = `${schema["legacyId"]}|${JSON.stringify({ name: 'Alice', age: 30 })}`;
+    const unpacked = schema.unpack(packed);
+    
+    expect(unpacked).toEqual({ name: 'Alice', age: 30 });
+  })
 });

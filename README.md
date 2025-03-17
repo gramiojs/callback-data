@@ -6,9 +6,7 @@ Library for easily manage callback-data.
 [![JSR](https://jsr.io/badges/@gramio/callback-data)](https://jsr.io/@gramio/callback-data)
 [![JSR Score](https://jsr.io/badges/@gramio/callback-data/score)](https://jsr.io/@gramio/callback-data)
 
-WIP. JSON.stringify is temporarily used under the hood.
-
-## Usage with [GramIO](https://gramio.netlify.app/)
+## Usage with [GramIO](https://gramio.dev/)
 
 ```typescript
 const someData = new CallbackData("example").number("id");
@@ -28,5 +26,3 @@ new Bot()
         context.queryData; // is type-safe
     });
 ```
-
-Use is not recommended at this stage!
