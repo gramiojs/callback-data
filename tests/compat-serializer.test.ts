@@ -197,4 +197,49 @@ describe("CompactSerializer", () => {
 			expect(deserialized.id).toBe(uuid);
 		}
 	});
+
+	test("applies defaults during deserialization", () => {
+		const schema = {
+			required: [{ key: "id", type: "number" as const }],
+			optional: [
+				{
+					key: "theme",
+					type: "string" as const,
+					default: "dark",
+				},
+				{
+					key: "retryCount",
+					type: "number" as const,
+					default: 3,
+				},
+			],
+		};
+
+		const serialized = CompactSerializer.serialize(schema, { id: 42 });
+
+		const deserialized = CompactSerializer.deserialize(schema, serialized);
+
+		expect(deserialized).toEqual({
+			id: 42,
+			theme: "dark",
+			retryCount: 3,
+		});
+	});
+
+	test("does not store defaults in serialized data", () => {
+		const schema = {
+			required: [],
+			optional: [
+				{
+					key: "lang",
+					type: "string" as const,
+					default: "en",
+				},
+			],
+		};
+
+		const serialized = CompactSerializer.serialize(schema, {});
+
+		expect(serialized).toBe("AA");
+	});
 });

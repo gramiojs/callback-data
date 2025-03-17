@@ -55,6 +55,8 @@ export class CompactSerializer {
 		for (const field of schema.optional) {
 			if (bitmask & (1 << optionalIndex)) {
 				result[field.key] = this.deserializeValue(field, parts[ptr++]);
+			} else if (field.default !== undefined) {
+				result[field.key] = field.default;
 			}
 			optionalIndex++;
 		}

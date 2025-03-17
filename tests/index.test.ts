@@ -235,10 +235,14 @@ describe("Serialization/Deserialization", () => {
 	//   });
 
 	test("should validate enum values", () => {
-		const schema = new CallbackData("enums").enum("status", [
-			"active",
-			"inactive",
-		]);
+		const schema = new CallbackData("enums").enum(
+			"status",
+			["active", "inactive"],
+			{
+				optional: true,
+				default: "active",
+			},
+		);
 
 		const testData = { status: "active" as const };
 		const packed = schema.pack(testData);
@@ -280,5 +284,56 @@ describe("Serialization/Deserialization", () => {
 		const unpacked = schema.unpack(packed);
 
 		expect(unpacked).toEqual({ name: "Alice", age: 30 });
+	});
+
+	test("handles UUID v7 with defaults", () => {
+		const schema = new CallbackData("uuidv7").uuid("id", {
+			default: "00000000-0000-7000-8000-000000000000",
+		});
+
+		const unpacked = schema.unpack(schema.pack({}));
+		expect(unpacked.id).toBe("00000000-0000-7000-8000-000000000000");
+	});
+
+	test("handles large numbers with defaults", () => {
+		const schema = new CallbackData("bigNumbers").number("big", {
+			default: Number.MAX_SAFE_INTEGER,
+		});
+
+		const unpacked = schema.unpack(schema.pack({}));
+		expect(unpacked.big).toBe(Number.MAX_SAFE_INTEGER);
+	});
+
+	test("handles boolean defaults correctly", () => {
+		const schema = new CallbackData("bools")
+			.boolean("active", { default: false })
+			.boolean("admin", { default: true });
+
+		const unpacked = schema.unpack(schema.pack({}));
+		expect(unpacked.active).toBe(false);
+		expect(unpacked.admin).toBe(true);
+	});
+
+	test("handles empty string default", () => {
+		const schema = new CallbackData("empty").string("comment", { default: "" });
+
+		const unpacked = schema.unpack(schema.pack({}));
+		expect(unpacked.comment).toBe("");
+	});
+
+	test("handles zero default value", () => {
+		const schema = new CallbackData("zero").number("value", { default: 0 });
+
+		const unpacked = schema.unpack(schema.pack({}));
+		expect(unpacked.value).toBe(0);
+	});
+
+	test("handles special characters in default strings", () => {
+		const schema = new CallbackData("special").string("text", {
+			default: ";base64|url\\escape",
+		});
+
+		const unpacked = schema.unpack(schema.pack({}));
+		expect(unpacked.text).toBe(";base64|url\\escape");
 	});
 });

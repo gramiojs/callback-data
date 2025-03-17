@@ -6,7 +6,13 @@
 
 import { createHash } from "node:crypto";
 import { CompactSerializer } from "./serialization/index.ts";
-import type { AddField, FieldOptions, Prettify, Schema } from "./types.ts";
+import type {
+	AddFieldInput,
+	AddFieldOutput,
+	FieldOptions,
+	Prettify,
+	Schema,
+} from "./types.ts";
 
 /**
  * Class-helper that construct schema and serialize/deserialize with {@link CallbackData.pack} and {@link CallbackData.unpack} methods
@@ -34,6 +40,7 @@ import type { AddField, FieldOptions, Prettify, Schema } from "./types.ts";
 export class CallbackData<
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	SchemaType extends Record<string, any> = Record<never, never>,
+	SchemaTypeInput extends Record<string, any> = Record<never, never>,
 > {
 	/** `id` for identify the CallbackData */
 	id: string;
@@ -61,14 +68,27 @@ export class CallbackData<
 	 * Add `string` property to schema
 	 * @param key Name of property
 	 */
-	string<Key extends string, Optional extends boolean = false>(
+	string<
+		Key extends string,
+		Optional extends boolean = false,
+		const Default extends string = never,
+	>(
 		key: Key,
-		options?: FieldOptions<"string", Optional>,
-	): CallbackData<Prettify<SchemaType & AddField<"string", Key, Optional>>> {
-		this.schema[options?.optional ? "optional" : "required"].push({
+		options?: FieldOptions<"string", Optional, never, Default>,
+	): CallbackData<
+		Prettify<
+			SchemaType & AddFieldOutput<"string", Key, Optional, never, Default>
+		>,
+		Prettify<
+			SchemaTypeInput & AddFieldInput<"string", Key, Optional, never, Default>
+		>
+	> {
+		const isOptional = options?.optional ?? options?.default !== undefined;
+
+		this.schema[isOptional ? "optional" : "required"].push({
 			key,
 			type: "string",
-			// default: options?.default,
+			default: options?.default,
 		});
 
 		return this;
@@ -78,14 +98,27 @@ export class CallbackData<
 	 * Add `number` property to schema
 	 * @param key Name of property
 	 */
-	number<Key extends string, Optional extends boolean = false>(
+	number<
+		Key extends string,
+		Optional extends boolean = false,
+		const Default extends number = never,
+	>(
 		key: Key,
-		options?: FieldOptions<"number", Optional>,
-	): CallbackData<Prettify<SchemaType & AddField<"number", Key, Optional>>> {
-		this.schema[options?.optional ? "optional" : "required"].push({
+		options?: FieldOptions<"number", Optional, never, Default>,
+	): CallbackData<
+		Prettify<
+			SchemaType & AddFieldOutput<"number", Key, Optional, never, Default>
+		>,
+		Prettify<
+			SchemaTypeInput & AddFieldInput<"number", Key, Optional, never, Default>
+		>
+	> {
+		const isOptional = options?.optional ?? options?.default !== undefined;
+
+		this.schema[isOptional ? "optional" : "required"].push({
 			key,
 			type: "number",
-			// default: options?.default,
+			default: options?.default,
 		});
 
 		return this;
@@ -95,14 +128,27 @@ export class CallbackData<
 	 * Add `boolean` property to schema
 	 * @param key Name of property
 	 */
-	boolean<Key extends string, Optional extends boolean = false>(
+	boolean<
+		Key extends string,
+		Optional extends boolean = false,
+		const Default extends boolean = false,
+	>(
 		key: Key,
-		options?: FieldOptions<"boolean", Optional>,
-	): CallbackData<Prettify<SchemaType & AddField<"boolean", Key, Optional>>> {
-		this.schema[options?.optional ? "optional" : "required"].push({
+		options?: FieldOptions<"boolean", Optional, never, Default>,
+	): CallbackData<
+		Prettify<
+			SchemaType & AddFieldOutput<"boolean", Key, Optional, never, Default>
+		>,
+		Prettify<
+			SchemaTypeInput & AddFieldInput<"boolean", Key, Optional, never, Default>
+		>
+	> {
+		const isOptional = options?.optional ?? options?.default !== undefined;
+
+		this.schema[isOptional ? "optional" : "required"].push({
 			key,
 			type: "boolean",
-			// default: options?.default,
+			default: options?.default,
 		});
 
 		return this;
@@ -118,17 +164,26 @@ export class CallbackData<
 		Optional extends boolean = false,
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		const T extends any[] = never,
+		const Default extends T[number] = never,
 	>(
 		key: Key,
 		enumValues: T,
-		options?: FieldOptions<"enum", Optional, T>,
+		options?: FieldOptions<"enum", Optional, T, Default>,
 	): CallbackData<
-		Prettify<SchemaType & AddField<"enum", Key, Optional, T[number]>>
+		Prettify<
+			SchemaType & AddFieldOutput<"enum", Key, Optional, T[number], Default>
+		>,
+		Prettify<
+			SchemaTypeInput & AddFieldInput<"enum", Key, Optional, T[number], Default>
+		>
 	> {
-		this.schema[options?.optional ? "optional" : "required"].push({
+		const isOptional = options?.optional ?? options?.default !== undefined;
+
+		this.schema[isOptional ? "optional" : "required"].push({
 			key,
 			type: "enum",
 			enumValues,
+			default: options?.default,
 		});
 
 		return this;
@@ -138,13 +193,27 @@ export class CallbackData<
 	 * Add `uuid` property to schema
 	 * @param key Name of property
 	 */
-	uuid<Key extends string, Optional extends boolean = false>(
+	uuid<
+		Key extends string,
+		Optional extends boolean = false,
+		const Default extends string = never,
+	>(
 		key: Key,
-		options?: FieldOptions<"uuid", Optional>,
-	): CallbackData<Prettify<SchemaType & AddField<"uuid", Key, Optional>>> {
-		this.schema[options?.optional ? "optional" : "required"].push({
+		options?: FieldOptions<"uuid", Optional, never, Default>,
+	): CallbackData<
+		Prettify<
+			SchemaType & AddFieldOutput<"uuid", Key, Optional, never, Default>
+		>,
+		Prettify<
+			SchemaTypeInput & AddFieldInput<"uuid", Key, Optional, never, Default>
+		>
+	> {
+		const isOptional = options?.optional ?? options?.default !== undefined;
+
+		this.schema[isOptional ? "optional" : "required"].push({
 			key,
 			type: "uuid",
+			default: options?.default,
 		});
 
 		return this;
@@ -184,7 +253,7 @@ export class CallbackData<
 	 * });
 	 * ```
 	 */
-	pack<const T extends SchemaType>(data: T) {
+	pack<const T extends SchemaTypeInput>(data: T) {
 		return `${this.id}${CompactSerializer.serialize(this.schema, data)}`;
 	}
 
