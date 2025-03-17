@@ -156,4 +156,18 @@ describe('CompactSerializer', () => {
     
     expect(deserialized.empty).toBe('');
   });
+
+  test('float precision', () => {
+    const schema = { 
+        required: [{ key: 'value' as const, type: 'number' as const }],
+        optional: [] 
+    };
+    
+    const testValue = 0.1 + 0.2; // 0.30000000000000004
+    const serialized = CompactSerializer.serialize(schema, { value: testValue });
+    const deserialized = CompactSerializer.deserialize(schema, serialized);
+    
+    expect(deserialized.value).not.toBe(0.3);
+    expect(deserialized.value).toBeCloseTo(0.3, 15);
+}); 
 });

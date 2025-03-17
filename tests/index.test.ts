@@ -1,5 +1,6 @@
 import { describe, test, expect, beforeEach } from 'bun:test';
 import { CallbackData } from '../src/index';
+import { getBytesLength } from './utils';
 
 describe('CallbackData', () => {
 
@@ -183,6 +184,30 @@ describe('Serialization/Deserialization', () => {
     
     expect(unpacked?.max).toBe(testData.max);
   });
+
+  test('should handle minus numbers', () => {
+    const schema = new CallbackData('numbers').number('min');
+    const testData = { min: Number.MIN_SAFE_INTEGER };
+    
+    const packed = schema.pack(testData);
+    const unpacked = schema.unpack(packed);
+
+    expect(unpacked?.min).toBe(testData.min);
+  })
+
+  test('should handle float numbers', () => {
+    const schema = new CallbackData('numbers').number('float');
+    const testData = { float: 0.1+0.2 };
+    
+    const packed = schema.pack(testData);
+    const unpacked = schema.unpack(packed);
+
+    expect(packed).toMatchInlineSnapshot(`"E4wvhCAA;0.30000000000000004"`); // We can improve compact and make 0.30000000000000004 -> P_OuFHrhR64
+    // But there many cons like 1.23 (4 symbols) ->  fP51wpA (7 symbols)
+    // So we wants to keep floats as is
+    expect(getBytesLength(packed)).toMatchInlineSnapshot(`28`);
+    expect(unpacked?.float).toBe(testData.float);
+  })
 
   test('should handle boolean values', () => {
     const schema = new CallbackData('bools')

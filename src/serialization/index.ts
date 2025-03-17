@@ -67,7 +67,11 @@ export class CompactSerializer {
 	): string {
 		switch (field.type) {
 			case "number":
-				return value.toString(36);
+				if (Number.isSafeInteger(value)) {
+					return value.toString(36);
+				}
+
+				return value.toString();
 			case "enum":
 				return field.enumValues!.indexOf(value).toString(36);
 			case "string":
@@ -82,7 +86,11 @@ export class CompactSerializer {
 	private static deserializeValue(field: Schema["required"][0], value: string) {
 		switch (field.type) {
 			case "number":
-				return Number.parseInt(value, 36);
+				if (/^-?[0-9a-z]+$/.test(value)) {
+					return parseInt(value, 36);
+				}
+
+				return parseFloat(value);
 			case "enum":
 				return field.enumValues![Number.parseInt(value, 36)];
 			case "string":
