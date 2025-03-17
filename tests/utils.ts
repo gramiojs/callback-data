@@ -4,6 +4,11 @@ export function getBytesLength(str: string | object) {
 	).byteLength;
 }
 
+console.log(
+	getBytesLength("base64url".repeat(100)),
+	getBytesLength(Buffer.from("base64url".repeat(100)).toString("base64url")),
+);
+
 export function formatMemoryUsage(memory: NodeJS.MemoryUsage): string {
 	const format = (bytes: number) => `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 

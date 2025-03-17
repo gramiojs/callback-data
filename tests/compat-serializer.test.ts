@@ -26,7 +26,7 @@ describe("CompactSerializer", () => {
 		const serialized = CompactSerializer.serialize(testSchema, obj);
 		const deserialized = CompactSerializer.deserialize(testSchema, serialized);
 
-		expect(getBytesLength(serialized)).toMatchInlineSnapshot(`17`);
+		expect(getBytesLength(serialized)).toMatchInlineSnapshot(`15`);
 		expect(getBytesLength(deserialized)).toMatchInlineSnapshot(`57`);
 
 		expect(deserialized).toEqual(obj);
@@ -60,7 +60,9 @@ describe("CompactSerializer", () => {
 		const serialized = CompactSerializer.serialize(testSchema, obj);
 		const deserialized = CompactSerializer.deserialize(testSchema, serialized);
 
-		expect(getBytesLength(serialized)).toMatchInlineSnapshot(`32`);
+		expect(serialized).toMatchInlineSnapshot(`"AQ;16;0;Contains\\ssemicolon"`);
+
+		expect(getBytesLength(serialized)).toMatchInlineSnapshot(`27`);
 		expect(getBytesLength(deserialized)).toMatchInlineSnapshot(`51`);
 
 		expect(deserialized.name).toBe("Contains;semicolon");
@@ -108,7 +110,7 @@ describe("CompactSerializer", () => {
 		const deserialized = CompactSerializer.deserialize(testSchema, serialized);
 		console.log(deserialized, getBytesLength(deserialized));
 
-		expect(getBytesLength(serialized)).toMatchInlineSnapshot(`54`);
+		expect(getBytesLength(serialized)).toMatchInlineSnapshot(`43`);
 		expect(getBytesLength(deserialized)).toMatchInlineSnapshot(`67`);
 
 		expect(deserialized.name).toBe("Анна Каренина;Тест");
@@ -140,7 +142,7 @@ describe("CompactSerializer", () => {
 		const deserialized = CompactSerializer.deserialize(schema, serialized);
 
 		expect(deserialized.text).toBe("TestString");
-		expect(getBytesLength(serialized)).toMatchInlineSnapshot("17");
+		expect(getBytesLength(serialized)).toMatchInlineSnapshot(`13`);
 	});
 
 	test("should handle empty strings", () => {

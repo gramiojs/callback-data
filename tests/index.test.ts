@@ -164,7 +164,7 @@ describe("Serialization/Deserialization", () => {
 
 		expect(unpacked).toEqual(testData);
 		expect(packed.startsWith(schema.id)).toBeTrue();
-		expect(packed).toMatchInlineSnapshot(`"UubYq4AQ;QWxpY2U;u;1;2"`);
+		expect(packed).toMatchInlineSnapshot(`"UubYq4AQ;Alice;u;1;2"`);
 		expect(schema.filter(packed)).toBeTrue();
 	});
 

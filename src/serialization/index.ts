@@ -64,6 +64,18 @@ export class CompactSerializer {
 		return result as T;
 	}
 
+	// TODO: rewrite and cleanup
+	private static ESCAPE_MAP: Record<string, string> = {
+		";": "\\s", // escape separator
+		"\\": "\\\\", // escape escaping symbol
+	};
+
+	// private static REVERT_ESCAPE_MAP: Record<string, string> = Object.fromEntries(
+	// 	Object.entries(CompactSerializer.ESCAPE_MAP).map(([k, v]) => [v, k]),
+	// );
+
+	private static UNESCAPE_REGEX = /\\(\\|s|e)/g;
+
 	private static serializeValue(
 		field: Schema["required"][0],
 		value: any,
@@ -83,8 +95,13 @@ export class CompactSerializer {
 
 				return buffer.toString("base64url");
 			}
-			case "string":
-				return Buffer.from(value).toString("base64url");
+			case "string": {
+				const str = value as string;
+
+				if (!/[;\\=]/.test(str)) return str;
+
+				return str.replace(/[;\\=]/g, (m) => this.ESCAPE_MAP[m]);
+			}
 			case "boolean":
 				return value ? "1" : "0";
 			default:
@@ -116,8 +133,11 @@ export class CompactSerializer {
 					.join("-")
 					.toLowerCase();
 			}
-			case "string":
-				return Buffer.from(value, "base64url").toString("utf8");
+			case "string": {
+				return value.replace(this.UNESCAPE_REGEX, (_, code) =>
+					code === "s" ? ";" : code === "e" ? "=" : "\\",
+				);
+			}
 			case "boolean":
 				return value === "1";
 			default:
