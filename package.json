@@ -1,33 +1,39 @@
 {
-    "name": "@gramio/callback-data",
-    "version": "0.0.3",
-    "main": "dist/index.js",
-    "devDependencies": {
-        "@biomejs/biome": "^1.9.4",
-        "@types/bun": "^1.2.5",
-        "gramio": "^0.2.4",
-        "typescript": "^5.8.2"
-    },
-    "description": "Library for easily manage callback-data",
-    "files": [
-        "dist"
-    ],
-    "homepage": "https://github.com/gramiojs/",
-    "keywords": [
-        "gramio",
-        "callback-data",
-        "telegram",
-        "telegram-bot-api"
-    ],
-    "readme": "https://gramio.netlify.app/",
-    "scripts": {
-        "prepublishOnly": "tsc && bunx tsc-alias",
-        "jsr": "bun scripts/release-jsr.ts",
-        "test:memory": "bun test --memory"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/gramiojs/callback-data.git"
-    },
-    "type": "commonjs"
+	"name": "@gramio/callback-data",
+	"version": "0.0.3",
+	"main": "dist/index.js",
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@types/bun": "^1.2.5",
+		"gramio": "^0.2.4",
+		"mitata": "^1.0.34",
+		"typescript": "^5.8.2"
+	},
+	"description": "Library for easily manage callback-data",
+	"files": ["dist"],
+	"homepage": "https://github.com/gramiojs/",
+	"keywords": ["gramio", "callback-data", "telegram", "telegram-bot-api"],
+	"readme": "https://gramio.netlify.app/",
+	"scripts": {
+		"prepublishOnly": "tsc && bunx tsc-alias",
+		"jsr": "bun scripts/release-jsr.ts",
+		"test:memory": "bun test --memory"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/gramiojs/callback-data.git"
+	},
+	"type": "module",
+	"exports": {
+		".": {
+			"import": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"require": {
+				"types": "./dist/index.d.cts",
+				"default": "./dist/index.cjs"
+			}
+		}
+	}
 }
