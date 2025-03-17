@@ -2,18 +2,14 @@ import { describe, test, expect, beforeEach } from 'bun:test';
 import { CallbackData } from '../src/index';
 
 describe('CallbackData', () => {
-  let builder: CallbackData;
-
-  beforeEach(() => {
-    builder = new CallbackData('test');
-  });
 
   test('should create instance with hashed id', () => {
+    const builder = new CallbackData('test');
     expect(builder.id).toMatch(/^[a-zA-Z0-9]{6}$/);
   });
 
   test('should build schema with required fields', () => {
-    const schema = builder
+    const schema = new CallbackData('test')
       .string('name')
       .number('age')
       .boolean('isActive')
@@ -23,7 +19,7 @@ describe('CallbackData', () => {
   });
 
   test('should handle optional fields with defaults', () => {
-    const schema = builder
+    const schema = new CallbackData('test')
       .string('optionalString', { optional: true, }) // default: 'default' 
       .number('optionalNumber', { optional: true })
       .boolean('optionalBoolean', { optional: true });
@@ -59,6 +55,89 @@ describe('CallbackData', () => {
     
     expect(() => schema.unpack(invalidData)).toThrow('id mismatch');
   });
+
+  test('should generate unique IDs for similar names', () => {
+    const INSTANCE_COUNT = 50;
+    const baseName = 'test-';
+    
+    const instances = Array.from({ length: INSTANCE_COUNT }, (_, i) => 
+      new CallbackData(`${baseName}${i.toString().padStart(3, '0')}`)
+    );
+
+    const ids = instances.map(instance => instance.id);
+    const uniqueIds = new Set(ids);
+
+    expect(uniqueIds.size).toBe(INSTANCE_COUNT);
+    expect(ids.every(id => id.length === 6)).toBeTrue();
+    expect(ids.every(id => /^[A-Za-z0-9]+$/.test(id))).toBeTrue();
+  });
+
+  test('unique id across restarts', () => {
+    const INSTANCE_COUNT = 50;
+    
+    const instances = Array.from({ length: INSTANCE_COUNT }, (_, i) => 
+      new CallbackData(`${i}`)
+    );
+
+    const ids = instances.map(instance => instance.id);
+    const uniqueIds = new Set(ids);
+
+    expect(uniqueIds.size).toBe(INSTANCE_COUNT);
+    expect(ids).toMatchInlineSnapshot(`
+      [
+        "tlifxq",
+        "NWoZK3",
+        "2kuSN7",
+        "d95o2u",
+        "G2RTiS",
+        "rDR41p",
+        "wdZbuq",
+        "kCujza",
+        "l27zqX",
+        "Ct58LP",
+        "sdV4ER",
+        "F7oHkU",
+        "e1IAm2",
+        "vTB6Ps",
+        "jXhkhI",
+        "8avWcD",
+        "FXS923",
+        "BxbZcI",
+        "nmpVtr",
+        "sDH9rt",
+        "kQMq17",
+        "RysHuf",
+        "Esb8Bs",
+        "1DWmzd",
+        "TRNLwH",
+        "9uESbO",
+        "iHMJ0E",
+        "vDPqTi",
+        "ClfLU7",
+        "dxmhx4",
+        "ItIAGc",
+        "YyZnVH",
+        "y05SCL",
+        "tmkupd",
+        "8fg2y0",
+        "lypnxI",
+        "AdNUBM",
+        "y3odd1",
+        "WzhM4y",
+        "yjUS9N",
+        "rz4TNC",
+        "dh8iss",
+        "ksOs51",
+        "AobdVS",
+        "mPvEL6",
+        "2RDUVY",
+        "i70laE",
+        "gnv8RY",
+        "ZOCVnY",
+        "LgHhdG",
+      ]
+    `)
+  });
 });
 
 describe('Serialization/Deserialization', () => {
@@ -80,6 +159,9 @@ describe('Serialization/Deserialization', () => {
     const unpacked = schema.unpack(packed);
     
     expect(unpacked).toEqual(testData);
+    expect(packed.startsWith(schema.id)).toBeTrue();
+    expect(packed).toMatchInlineSnapshot(`"UubYq4;AQ;QWxpY2U;u;1;2"`);
+    expect(schema.filter(packed)).toBeTrue();
   });
 
   test('should handle special characters in strings', () => {
