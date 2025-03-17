@@ -21,7 +21,8 @@
     "readme": "https://gramio.netlify.app/",
     "scripts": {
         "prepublishOnly": "tsc && bunx tsc-alias",
-        "jsr": "bun scripts/release-jsr.ts"
+        "jsr": "bun scripts/release-jsr.ts",
+        "test:memory": "bun test --memory"
     },
     "repository": {
         "type": "git",

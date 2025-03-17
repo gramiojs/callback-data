@@ -1,3 +1,28 @@
 export function getBytesLength(str: string | object) {
     return new TextEncoder().encode(typeof str === "string" ? str : JSON.stringify(str)).byteLength;
 }
+
+export function formatMemoryUsage(memory: NodeJS.MemoryUsage): string {
+    const format = (bytes: number) => 
+        `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+
+    return `Memory usage:
+  RSS: ${format(memory.rss)} (Resident Set Size)
+  Heap Total: ${format(memory.heapTotal)}
+  Heap Used: ${format(memory.heapUsed)}
+  External: ${format(memory.external)}
+  ArrayBuffers: ${format(memory.arrayBuffers)}`;
+}
+
+export function compareMemoryUsage(before: NodeJS.MemoryUsage, after: NodeJS.MemoryUsage): string {
+    const diff: Partial<NodeJS.MemoryUsage> = {};
+    const keys = ['rss', 'heapTotal', 'heapUsed', 'external', 'arrayBuffers'] as const;
+    
+    for (const key of keys) {
+        diff[key] = after[key] - before[key];
+    }
+
+    return `Memory difference:
+${formatMemoryUsage(diff as NodeJS.MemoryUsage)}`;
+}
+
