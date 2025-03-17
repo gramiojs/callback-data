@@ -1,12 +1,13 @@
 export type Prettify<T> = { [Key in keyof T]: T[Key] } & {};
 
-type AllowedTypes = "string" | "number" | "boolean" | "enum";
+type AllowedTypes = "string" | "number" | "boolean" | "enum" | "uuid";
 
 export interface FieldTypeToTsType<Enum extends unknown[]> {
 	string: string;
 	number: number;
 	boolean: boolean;
 	enum: Enum;
+	uuid: string;
 }
 
 export type AddField<

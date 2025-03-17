@@ -135,6 +135,22 @@ export class CallbackData<
 	}
 
 	/**
+	 * Add `uuid` property to schema
+	 * @param key Name of property
+	 */
+	uuid<Key extends string, Optional extends boolean = false>(
+		key: Key,
+		options?: FieldOptions<"uuid", Optional>,
+	): CallbackData<Prettify<SchemaType & AddField<"uuid", Key, Optional>>> {
+		this.schema[options?.optional ? "optional" : "required"].push({
+			key,
+			type: "uuid",
+		});
+
+		return this;
+	}
+
+	/**
 	 * Method that return {@link RegExp} to match this {@link CallbackData}
 	 */
 	regexp() {

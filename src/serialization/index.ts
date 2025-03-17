@@ -1,7 +1,10 @@
 import type { Schema } from "../types.ts";
 
 export class CompactSerializer {
-	static serialize(schema: Schema, obj: Record<string, unknown>): string {
+	static serialize<const T extends Schema>(
+		schema: T,
+		obj: Record<string, unknown>,
+	): string {
 		const parts: string[] = [];
 
 		for (const field of schema.required) {
@@ -32,13 +35,10 @@ export class CompactSerializer {
 		return [bitmaskEncoded, ...parts, ...optionalParts].join(";");
 	}
 
-	static deserialize<T extends Record<string, any>>(
-		schema: Schema,
-		str: string,
-	): T {
+	static deserialize<const T extends Schema>(schema: T, str: string): any {
 		const parts = str.split(";");
 		let ptr = 0;
-		const result: Record<string, any> = {};
+		const result: Record<string, unknown> = {};
 
 		const bitmaskStr = parts[ptr++];
 		const bitmaskBytes = Buffer.from(bitmaskStr, "base64url");
@@ -75,6 +75,12 @@ export class CompactSerializer {
 				return value.toString();
 			case "enum":
 				return field.enumValues!.indexOf(value).toString(36);
+			case "uuid": {
+				const hex = value.replace(/-/g, "");
+				const buffer = Buffer.from(hex, "hex");
+
+				return buffer.toString("base64url");
+			}
 			case "string":
 				return Buffer.from(value).toString("base64url");
 			case "boolean":
@@ -94,6 +100,20 @@ export class CompactSerializer {
 				return Number.parseFloat(value);
 			case "enum":
 				return field.enumValues![Number.parseInt(value, 36)];
+			case "uuid": {
+				const buffer = Buffer.from(value, "base64url");
+				const hex = buffer.toString("hex");
+
+				return [
+					hex.slice(0, 8),
+					hex.slice(8, 12),
+					hex.slice(12, 16),
+					hex.slice(16, 20),
+					hex.slice(20, 32),
+				]
+					.join("-")
+					.toLowerCase();
+			}
 			case "string":
 				return Buffer.from(value, "base64url").toString("utf8");
 			case "boolean":

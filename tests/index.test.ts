@@ -262,6 +262,15 @@ describe("Serialization/Deserialization", () => {
 		expect(unpacked).toEqual({});
 	});
 
+	test("should handle UUID v4 and v7", () => {
+		const schema = new CallbackData("uuid").uuid("id");
+		const testData = { id: crypto.randomUUID() };
+		const packed = schema.pack(testData);
+		const unpacked = schema.unpack(packed);
+
+		expect(unpacked?.id).toBe(testData.id);
+	});
+
 	test("Parse correctly legacy serialized data", () => {
 		const schema = new CallbackData("legacy").string("name").number("age");
 		const packed = `${
