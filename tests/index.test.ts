@@ -53,7 +53,7 @@ describe('CallbackData', () => {
     const schema = new CallbackData('test');
     const invalidData = 'wrong|{"value":1}';
     
-    expect(() => schema.unpack(invalidData)).toThrow('id mismatch');
+    expect(() => schema.unpack(invalidData)).toThrow('You should call unpack only if you use filter(data) method to determine that data is this CallbackData');
   });
 
   test('should generate unique IDs for similar names', () => {
@@ -160,7 +160,7 @@ describe('Serialization/Deserialization', () => {
     
     expect(unpacked).toEqual(testData);
     expect(packed.startsWith(schema.id)).toBeTrue();
-    expect(packed).toMatchInlineSnapshot(`"UubYq4;AQ;QWxpY2U;u;1;2"`);
+    expect(packed).toMatchInlineSnapshot(`"UubYq4AQ;QWxpY2U;u;1;2"`);
     expect(schema.filter(packed)).toBeTrue();
   });
 

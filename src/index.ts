@@ -37,6 +37,7 @@ export class CallbackData<
 > {
 	/** `id` for identify the CallbackData */
 	id: string;
+	private legacyId: string;
 	// /** Schema used for serialize/deserialize with {@link CallbackData.pack} and {@link CallbackData.unpack} methods */
 	// schema: Record<string, Field> = {};
 	 
@@ -49,6 +50,7 @@ export class CallbackData<
 	constructor(id: string) {
 		this.id = createHash("sha1").update(id).digest('base64url')
 		.replace(/[_-]/g, '').slice(0, 6);
+		this.legacyId = createHash("md5").update(id).digest('hex').slice(0, 6);
 	}
 
 	/**
@@ -102,6 +104,11 @@ export class CallbackData<
 		return this;
 	}
 
+	/**
+	 * Add `enum` property to schema
+	 * @param key Name of property
+	 * @param enumValues Enum values
+	 */
 	enum<Key extends string, Optional extends boolean = false, const T extends any[] = never>(
 		key: Key,
 		enumValues:  T,
@@ -121,11 +128,15 @@ export class CallbackData<
 	 */
 	regexp() {
 		// return new RegExp(`^${this.id}\\|(.+)$`);
-		return new RegExp(`^${this.id};(.+)$`);
+		return new RegExp(`^${this.id}|${this.legacyId}\|(.+)$`);
 	}
 
+	/**
+	 * Method that return `true` if data is this {@link CallbackData}
+	 * @param data String with data
+	 */
 	filter(data: string) {
-		return data.startsWith(this.id+";");
+		return data.startsWith(this.id) || data.startsWith(this.legacyId+"|");
 	}
 
 	/**
@@ -147,7 +158,7 @@ export class CallbackData<
 	 * ```
 	 */
 	pack<const T extends SchemaType>(data: T) {
-		return `${this.id};${CompactSerializer.serialize(this.schema, data)}`;
+		return `${this.id}${CompactSerializer.serialize(this.schema, data)}`;
 	}
 
 	/**
@@ -155,13 +166,16 @@ export class CallbackData<
 	 * @param data String with data (please check that this string matched by {@link CallbackData.regexp})
 	 */
 	unpack(data: string): SchemaType {
-		const separatorIndex = data.indexOf(';');
-		const id = data.slice(0, separatorIndex);
-		if (id !== this.id) throw new Error("WIP. id mismatch");
+		if (data.startsWith(this.legacyId+"|")) {
+			const json = JSON.parse(data.replace(this.legacyId+"|", ""));
+			return json as SchemaType;
+		}
+		const separatorIndex = data.indexOf(this.id);
+		if (separatorIndex === -1) throw new Error("You should call unpack only if you use filter(data) method to determine that data is this CallbackData");
 
 		return CompactSerializer.deserialize(
 			this.schema,
-			data.slice(separatorIndex + 1)
+			data.slice(separatorIndex + this.id.length)
 		  );
 	}
 }
