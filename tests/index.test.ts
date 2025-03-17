@@ -1,90 +1,93 @@
-import { describe, test, expect, beforeEach } from 'bun:test';
-import { CallbackData } from '../src/index';
-import { getBytesLength } from './utils';
+import { describe, expect, test } from "bun:test";
+import { CallbackData } from "../src/index";
+import { getBytesLength } from "./utils";
 
-describe('CallbackData', () => {
+describe("CallbackData", () => {
+	test("should create instance with hashed id", () => {
+		const builder = new CallbackData("test");
+		expect(builder.id).toMatch(/^[a-zA-Z0-9]{6}$/);
+	});
 
-  test('should create instance with hashed id', () => {
-    const builder = new CallbackData('test');
-    expect(builder.id).toMatch(/^[a-zA-Z0-9]{6}$/);
-  });
+	test("should build schema with required fields", () => {
+		const schema = new CallbackData("test")
+			.string("name")
+			.number("age")
+			.boolean("isActive")
+			.enum("role", ["admin", "user"]);
 
-  test('should build schema with required fields', () => {
-    const schema = new CallbackData('test')
-      .string('name')
-      .number('age')
-      .boolean('isActive')
-      .enum('role', ['admin', 'user']);
+		expect(schema).toBeInstanceOf(CallbackData);
+	});
 
-    expect(schema).toBeInstanceOf(CallbackData);
-  });
+	test("should handle optional fields with defaults", () => {
+		const schema = new CallbackData("test")
+			.string("optionalString", { optional: true }) // default: 'default'
+			.number("optionalNumber", { optional: true })
+			.boolean("optionalBoolean", { optional: true });
 
-  test('should handle optional fields with defaults', () => {
-    const schema = new CallbackData('test')
-      .string('optionalString', { optional: true, }) // default: 'default' 
-      .number('optionalNumber', { optional: true })
-      .boolean('optionalBoolean', { optional: true });
+		expect(schema).toBeInstanceOf(CallbackData);
+	});
 
-    expect(schema).toBeInstanceOf(CallbackData);
-  });
+	test("pack/unpack should serialize/deserialize correctly", () => {
+		const testData = { id: 42, name: "Test" };
+		const schema = new CallbackData("test").number("id").string("name");
 
-  test('pack/unpack should serialize/deserialize correctly', () => {
-    const testData = { id: 42, name: 'Test' };
-    const schema = new CallbackData('test').number('id').string('name');
-    
-    const packed = schema.pack(testData);
-    const unpacked = schema.unpack(packed);
+		const packed = schema.pack(testData);
+		const unpacked = schema.unpack(packed);
 
-    expect(packed.startsWith(schema.id)).toBeTrue();
-    expect(unpacked).toEqual({
-      id: 42,
-      name: 'Test'
-    });
-  });
+		expect(packed.startsWith(schema.id)).toBeTrue();
+		expect(unpacked).toEqual({
+			id: 42,
+			name: "Test",
+		});
+	});
 
-  test('regexp should match packed format', () => {
-    const testData = { value: 1 };
-    const schema = new CallbackData('test').number('value');
-    const packed = schema.pack(testData);
-    
-    expect(schema.regexp().test(packed)).toBeTrue();
-  });
+	test("regexp should match packed format", () => {
+		const testData = { value: 1 };
+		const schema = new CallbackData("test").number("value");
+		const packed = schema.pack(testData);
 
-  test('unpack should throw on invalid id', () => {
-    const schema = new CallbackData('test');
-    const invalidData = 'wrong|{"value":1}';
-    
-    expect(() => schema.unpack(invalidData)).toThrow('You should call unpack only if you use filter(data) method to determine that data is this CallbackData');
-  });
+		expect(schema.regexp().test(packed)).toBeTrue();
+	});
 
-  test('should generate unique IDs for similar names', () => {
-    const INSTANCE_COUNT = 50;
-    const baseName = 'test-';
-    
-    const instances = Array.from({ length: INSTANCE_COUNT }, (_, i) => 
-      new CallbackData(`${baseName}${i.toString().padStart(3, '0')}`)
-    );
+	test("unpack should throw on invalid id", () => {
+		const schema = new CallbackData("test");
+		const invalidData = 'wrong|{"value":1}';
 
-    const ids = instances.map(instance => instance.id);
-    const uniqueIds = new Set(ids);
+		expect(() => schema.unpack(invalidData)).toThrow(
+			"You should call unpack only if you use filter(data) method to determine that data is this CallbackData",
+		);
+	});
 
-    expect(uniqueIds.size).toBe(INSTANCE_COUNT);
-    expect(ids.every(id => id.length === 6)).toBeTrue();
-    expect(ids.every(id => /^[A-Za-z0-9]+$/.test(id))).toBeTrue();
-  });
+	test("should generate unique IDs for similar names", () => {
+		const INSTANCE_COUNT = 50;
+		const baseName = "test-";
 
-  test('unique id across restarts', () => {
-    const INSTANCE_COUNT = 50;
-    
-    const instances = Array.from({ length: INSTANCE_COUNT }, (_, i) => 
-      new CallbackData(`${i}`)
-    );
+		const instances = Array.from(
+			{ length: INSTANCE_COUNT },
+			(_, i) => new CallbackData(`${baseName}${i.toString().padStart(3, "0")}`),
+		);
 
-    const ids = instances.map(instance => instance.id);
-    const uniqueIds = new Set(ids);
+		const ids = instances.map((instance) => instance.id);
+		const uniqueIds = new Set(ids);
 
-    expect(uniqueIds.size).toBe(INSTANCE_COUNT);
-    expect(ids).toMatchInlineSnapshot(`
+		expect(uniqueIds.size).toBe(INSTANCE_COUNT);
+		expect(ids.every((id) => id.length === 6)).toBeTrue();
+		expect(ids.every((id) => /^[A-Za-z0-9]+$/.test(id))).toBeTrue();
+	});
+
+	test("unique id across restarts", () => {
+		const INSTANCE_COUNT = 50;
+
+		const instances = Array.from(
+			{ length: INSTANCE_COUNT },
+			(_, i) => new CallbackData(`${i}`),
+		);
+
+		const ids = instances.map((instance) => instance.id);
+		const uniqueIds = new Set(ids);
+
+		expect(uniqueIds.size).toBe(INSTANCE_COUNT);
+		expect(ids).toMatchInlineSnapshot(`
       [
         "tlifxq",
         "NWoZK3",
@@ -137,131 +140,136 @@ describe('CallbackData', () => {
         "ZOCVnY",
         "LgHhdG",
       ]
-    `)
-  });
+    `);
+	});
 });
 
-describe('Serialization/Deserialization', () => {
-  test('should handle all field types', () => {
-    const schema = new CallbackData('full')
-      .string('name')
-      .number('age')
-      .boolean('isAdmin')
-      .enum('role', ['user', 'moderator', 'admin'], { optional: true });
+describe("Serialization/Deserialization", () => {
+	test("should handle all field types", () => {
+		const schema = new CallbackData("full")
+			.string("name")
+			.number("age")
+			.boolean("isAdmin")
+			.enum("role", ["user", "moderator", "admin"], { optional: true });
 
-    const testData = {
-      name: 'Alice',
-      age: 30,
-      isAdmin: true,
-      role: 'admin' as const
-    };
+		const testData = {
+			name: "Alice",
+			age: 30,
+			isAdmin: true,
+			role: "admin" as const,
+		};
 
-    const packed = schema.pack(testData);
-    const unpacked = schema.unpack(packed);
-    
-    expect(unpacked).toEqual(testData);
-    expect(packed.startsWith(schema.id)).toBeTrue();
-    expect(packed).toMatchInlineSnapshot(`"UubYq4AQ;QWxpY2U;u;1;2"`);
-    expect(schema.filter(packed)).toBeTrue();
-  });
+		const packed = schema.pack(testData);
+		const unpacked = schema.unpack(packed);
 
-  test('should handle special characters in strings', () => {
-    const schema = new CallbackData('special').string('text');
-    const testData = { text: 'Hello|World\\nTest;Escaped' };
-    
-    const packed = schema.pack(testData);
-    const unpacked = schema.unpack(packed);
-    
-    expect(unpacked?.text).toBe(testData.text);
-  });
+		expect(unpacked).toEqual(testData);
+		expect(packed.startsWith(schema.id)).toBeTrue();
+		expect(packed).toMatchInlineSnapshot(`"UubYq4AQ;QWxpY2U;u;1;2"`);
+		expect(schema.filter(packed)).toBeTrue();
+	});
 
-  test('should handle number boundaries', () => {
-    const schema = new CallbackData('numbers').number('max');
-    const testData = { max: Number.MAX_SAFE_INTEGER };
-    
-    const packed = schema.pack(testData);
-    const unpacked = schema.unpack(packed);
-    
-    expect(unpacked?.max).toBe(testData.max);
-  });
+	test("should handle special characters in strings", () => {
+		const schema = new CallbackData("special").string("text");
+		const testData = { text: "Hello|World\\nTest;Escaped" };
 
-  test('should handle minus numbers', () => {
-    const schema = new CallbackData('numbers').number('min');
-    const testData = { min: Number.MIN_SAFE_INTEGER };
-    
-    const packed = schema.pack(testData);
-    const unpacked = schema.unpack(packed);
+		const packed = schema.pack(testData);
+		const unpacked = schema.unpack(packed);
 
-    expect(unpacked?.min).toBe(testData.min);
-  })
+		expect(unpacked?.text).toBe(testData.text);
+	});
 
-  test('should handle float numbers', () => {
-    const schema = new CallbackData('numbers').number('float');
-    const testData = { float: 0.1+0.2 };
-    
-    const packed = schema.pack(testData);
-    const unpacked = schema.unpack(packed);
+	test("should handle number boundaries", () => {
+		const schema = new CallbackData("numbers").number("max");
+		const testData = { max: Number.MAX_SAFE_INTEGER };
 
-    expect(packed).toMatchInlineSnapshot(`"E4wvhCAA;0.30000000000000004"`); // We can improve compact and make 0.30000000000000004 -> P_OuFHrhR64
-    // But there many cons like 1.23 (4 symbols) ->  fP51wpA (7 symbols)
-    // So we wants to keep floats as is
-    expect(getBytesLength(packed)).toMatchInlineSnapshot(`28`);
-    expect(unpacked?.float).toBe(testData.float);
-  })
+		const packed = schema.pack(testData);
+		const unpacked = schema.unpack(packed);
 
-  test('should handle boolean values', () => {
-    const schema = new CallbackData('bools')
-      .boolean('flag1')
-      .boolean('flag2');
+		expect(unpacked?.max).toBe(testData.max);
+	});
 
-    const testData = { flag1: true, flag2: false };
-    const unpacked = schema.unpack(schema.pack(testData));
-    
-    expect(unpacked?.flag1).toBe(true);
-    expect(unpacked?.flag2).toBe(false);
-  });
+	test("should handle minus numbers", () => {
+		const schema = new CallbackData("numbers").number("min");
+		const testData = { min: Number.MIN_SAFE_INTEGER };
 
-//   test('should apply default values for optional fields', () => {
-//     const schema = new CallbackData('defaults')
-//       .string('name', { optional: true }) // default: 'Anonymous'
-//       .number('count', { optional: true }); // default: 0
+		const packed = schema.pack(testData);
+		const unpacked = schema.unpack(packed);
 
-//     const packed = schema.pack({});
-//     const unpacked = schema.unpack(packed);
-    
-//     expect(unpacked.name).toBe('Anonymous');
-//     expect(unpacked.count).toBe(0);
-//   });
+		expect(unpacked?.min).toBe(testData.min);
+	});
 
-  test('should validate enum values', () => {
-    const schema = new CallbackData('enums')
-      .enum('status', ['active', 'inactive']);
+	test("should handle float numbers", () => {
+		const schema = new CallbackData("numbers").number("float");
+		const testData = { float: 0.1 + 0.2 };
 
-    const testData = { status: 'active' as const };
-    const packed = schema.pack(testData);
-    console.log(packed);
-    const unpacked = schema.unpack(packed);
-    
-    console.log(unpacked);
-    expect(unpacked?.status).toBe('active');
-  });
+		const packed = schema.pack(testData);
+		const unpacked = schema.unpack(packed);
 
-  test('should handle empty optional fields', () => {
-    const schema = new CallbackData('optional')
-      .string('comment', { optional: true })
-      .number('rating', { optional: true });
+		expect(packed).toMatchInlineSnapshot(`"E4wvhCAA;0.30000000000000004"`); // We can improve compact and make 0.30000000000000004 -> P_OuFHrhR64
+		// But there many cons like 1.23 (4 symbols) ->  fP51wpA (7 symbols)
+		// So we wants to keep floats as is
+		expect(getBytesLength(packed)).toMatchInlineSnapshot("28");
+		expect(unpacked?.float).toBe(testData.float);
+	});
 
-    const testData = { /* empty */ };
-    const unpacked = schema.unpack(schema.pack(testData));
-    
-    expect(unpacked).toEqual({});
-  });
+	test("should handle boolean values", () => {
+		const schema = new CallbackData("bools").boolean("flag1").boolean("flag2");
 
-  test('Parse correctly legacy serialized data', () => {
-    const schema = new CallbackData('legacy').string('name').number('age');
-    const packed = `${schema["legacyId"]}|${JSON.stringify({ name: 'Alice', age: 30 })}`;
-    const unpacked = schema.unpack(packed);
-    
-    expect(unpacked).toEqual({ name: 'Alice', age: 30 });
-  })
+		const testData = { flag1: true, flag2: false };
+		const unpacked = schema.unpack(schema.pack(testData));
+
+		expect(unpacked?.flag1).toBe(true);
+		expect(unpacked?.flag2).toBe(false);
+	});
+
+	//   test('should apply default values for optional fields', () => {
+	//     const schema = new CallbackData('defaults')
+	//       .string('name', { optional: true }) // default: 'Anonymous'
+	//       .number('count', { optional: true }); // default: 0
+
+	//     const packed = schema.pack({});
+	//     const unpacked = schema.unpack(packed);
+
+	//     expect(unpacked.name).toBe('Anonymous');
+	//     expect(unpacked.count).toBe(0);
+	//   });
+
+	test("should validate enum values", () => {
+		const schema = new CallbackData("enums").enum("status", [
+			"active",
+			"inactive",
+		]);
+
+		const testData = { status: "active" as const };
+		const packed = schema.pack(testData);
+		console.log(packed);
+		const unpacked = schema.unpack(packed);
+
+		console.log(unpacked);
+		expect(unpacked?.status).toBe("active");
+	});
+
+	test("should handle empty optional fields", () => {
+		const schema = new CallbackData("optional")
+			.string("comment", { optional: true })
+			.number("rating", { optional: true });
+
+		const testData = {
+			/* empty */
+		};
+		const unpacked = schema.unpack(schema.pack(testData));
+
+		expect(unpacked).toEqual({});
+	});
+
+	test("Parse correctly legacy serialized data", () => {
+		const schema = new CallbackData("legacy").string("name").number("age");
+		const packed = `${
+			// biome-ignore lint/complexity/useLiteralKeys: <explanation>
+			schema["legacyId"]
+		}|${JSON.stringify({ name: "Alice", age: 30 })}`;
+		const unpacked = schema.unpack(packed);
+
+		expect(unpacked).toEqual({ name: "Alice", age: 30 });
+	});
 });

@@ -1,7 +1,7 @@
 import type { Schema } from "../types.ts";
 
 export class CompactSerializer {
-	static serialize(schema: Schema, obj: any): string {
+	static serialize(schema: Schema, obj: Record<string, unknown>): string {
 		const parts: string[] = [];
 
 		for (const field of schema.required) {
@@ -12,6 +12,7 @@ export class CompactSerializer {
 		const optionalParts: string[] = [];
 		for (let i = 0; i < schema.optional.length; i++) {
 			const field = schema.optional[i];
+			// biome-ignore lint/suspicious/noPrototypeBuiltins: <explanation>
 			if (obj.hasOwnProperty(field.key)) {
 				bitmask |= 1 << i;
 				optionalParts.push(this.serializeValue(field, obj[field.key]));
@@ -77,7 +78,7 @@ export class CompactSerializer {
 			case "string":
 				return Buffer.from(value).toString("base64url");
 			case "boolean":
-				return value ? '1' : '0';
+				return value ? "1" : "0";
 			default:
 				throw new Error(`Unsupported type: ${field.type}`);
 		}
@@ -87,16 +88,16 @@ export class CompactSerializer {
 		switch (field.type) {
 			case "number":
 				if (/^-?[0-9a-z]+$/.test(value)) {
-					return parseInt(value, 36);
+					return Number.parseInt(value, 36);
 				}
 
-				return parseFloat(value);
+				return Number.parseFloat(value);
 			case "enum":
 				return field.enumValues![Number.parseInt(value, 36)];
 			case "string":
 				return Buffer.from(value, "base64url").toString("utf8");
 			case "boolean":
-				return value === '1';
+				return value === "1";
 			default:
 				throw new Error(`Unsupported type: ${field.type}`);
 		}
