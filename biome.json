@@ -19,6 +19,10 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
+			"complexity": {
+				"noStaticOnlyClass": "off",
+				"noThisInStatic": "off"
+			},
 			"recommended": true
 		}
 	},
