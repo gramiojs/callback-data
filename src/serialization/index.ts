@@ -68,6 +68,7 @@ export class CompactSerializer {
 	private static ESCAPE_MAP: Record<string, string> = {
 		";": "\\s", // escape separator
 		"\\": "\\\\", // escape escaping symbol
+		"=": "\\e", // escape =
 	};
 
 	// private static REVERT_ESCAPE_MAP: Record<string, string> = Object.fromEntries(

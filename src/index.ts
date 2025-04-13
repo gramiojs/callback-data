@@ -54,14 +54,14 @@ export class CallbackData<
 	} as Schema;
 
 	/** Pass the `id` with which you can identify the CallbackData */
-	constructor(id: string) {
+	constructor(public nameId: string) {
 		this.id = createHash("sha1")
-			.update(id)
+			.update(nameId)
 			.digest("base64url")
 			.replace(/[_-]/g, "")
 			.slice(0, 6);
 		// TODO: remove this legacy id
-		this.legacyId = createHash("md5").update(id).digest("hex").slice(0, 6);
+		this.legacyId = createHash("md5").update(nameId).digest("hex").slice(0, 6);
 	}
 
 	/**
@@ -224,7 +224,7 @@ export class CallbackData<
 	 */
 	regexp() {
 		// return new RegExp(`^${this.id}\\|(.+)$`);
-		return new RegExp(`^${this.id}|${this.legacyId}\|(.+)$`);
+		return new RegExp(`^${this.id}|${this.legacyId}\\|(.+)$`);
 	}
 
 	/**
@@ -269,7 +269,7 @@ export class CallbackData<
 		const separatorIndex = data.indexOf(this.id);
 		if (separatorIndex === -1)
 			throw new Error(
-				"You should call unpack only if you use filter(data) method to determine that data is this CallbackData",
+				`You should call unpack only if you use filter(data) method to determine that data is this CallbackData. Currently, unpack is called for '${this.nameId}' with data '${data}'`,
 			);
 
 		return CompactSerializer.deserialize(

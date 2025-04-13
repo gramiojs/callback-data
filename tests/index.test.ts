@@ -54,8 +54,17 @@ describe("CallbackData", () => {
 		const invalidData = 'wrong|{"value":1}';
 
 		expect(() => schema.unpack(invalidData)).toThrow(
-			"You should call unpack only if you use filter(data) method to determine that data is this CallbackData",
+			`You should call unpack only if you use filter(data) method to determine that data is this CallbackData. Currently, unpack is called for 'test' with data '${invalidData}'`,
 		);
+	});
+
+	test("regexp should return true ONLY for valid data", () => {
+		const schema = new CallbackData("test");
+		const validData = schema.pack({ value: 1 });
+		const invalidData = 'wrong|{"value":1}';
+
+		expect(schema.regexp().test(validData)).toBeTrue();
+		expect(schema.regexp().test(invalidData)).toBeFalse();
 	});
 
 	test("should generate unique IDs for similar names", () => {
