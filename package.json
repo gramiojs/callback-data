@@ -1,10 +1,11 @@
 {
 	"name": "@gramio/callback-data",
-	"version": "0.0.6",
+	"version": "0.0.7",
 	"main": "dist/index.js",
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
 		"@types/bun": "^1.2.5",
+		"expect-type": "^1.2.1",
 		"gramio": "^0.2.4",
 		"mitata": "^1.0.34",
 		"pkgroll": "^2.11.2",

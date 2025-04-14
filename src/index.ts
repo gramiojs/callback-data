@@ -132,7 +132,7 @@ export class CallbackData<
 	boolean<
 		Key extends string,
 		Optional extends boolean = false,
-		const Default extends boolean = false,
+		const Default extends boolean = never,
 	>(
 		key: Key,
 		options?: FieldOptions<"boolean", Optional, never, Default>,
@@ -255,7 +255,9 @@ export class CallbackData<
 	 * ```
 	 */
 	pack<const T extends SchemaTypeInput>(
-		...args: IsOptionalType<SchemaType> extends true ? [] : [data: T]
+		...args: IsOptionalType<SchemaTypeInput> extends true
+			? [data?: T | undefined]
+			: [data: T]
 	) {
 		return `${this.id}${CompactSerializer.serialize(this.schema, args[0] ?? {})}`;
 	}
