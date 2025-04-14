@@ -27,6 +27,14 @@ describe("CallbackData", () => {
 		expect(schema).toBeInstanceOf(CallbackData);
 	});
 
+	test("should handle empty object", () => {
+		const schema = new CallbackData("test");
+		const packed = schema.pack();
+		const unpacked = schema.unpack(packed);
+
+		expect(unpacked).toEqual({});
+	});
+
 	test("pack/unpack should serialize/deserialize correctly", () => {
 		const testData = { id: 42, name: "Test" };
 		const schema = new CallbackData("test").number("id").string("name");

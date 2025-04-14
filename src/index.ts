@@ -10,6 +10,7 @@ import type {
 	AddFieldInput,
 	AddFieldOutput,
 	FieldOptions,
+	IsOptionalType,
 	Prettify,
 	Schema,
 } from "./types.ts";
@@ -253,8 +254,10 @@ export class CallbackData<
 	 * });
 	 * ```
 	 */
-	pack<const T extends SchemaTypeInput>(data: T) {
-		return `${this.id}${CompactSerializer.serialize(this.schema, data)}`;
+	pack<const T extends SchemaTypeInput>(
+		...args: IsOptionalType<SchemaType> extends true ? [] : [data: T]
+	) {
+		return `${this.id}${CompactSerializer.serialize(this.schema, args[0] ?? {})}`;
 	}
 
 	/**
