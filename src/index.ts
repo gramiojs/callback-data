@@ -259,7 +259,9 @@ export class CallbackData<
 			? [data?: T | undefined]
 			: [data: T]
 	) {
-		return `${this.id}${CompactSerializer.serialize(this.schema, args[0] ?? {})}`;
+		const data = args[0] ?? {};
+
+		return `${this.id}${Object.keys(data).length > 0 ? CompactSerializer.serialize(this.schema, data) : ""}`;
 	}
 
 	/**
@@ -277,9 +279,22 @@ export class CallbackData<
 				`You should call unpack only if you use filter(data) method to determine that data is this CallbackData. Currently, unpack is called for '${this.nameId}' with data '${data}'`,
 			);
 
-		return CompactSerializer.deserialize(
-			this.schema,
-			data.slice(separatorIndex + this.id.length),
-		);
+		const slicedData = data.slice(separatorIndex + this.id.length);
+
+		if (slicedData.length === 0) {
+			const hasDefault = this.schema.optional.some(
+				(x) => x.default !== undefined,
+			);
+
+			if (!hasDefault) {
+				if (this.schema.required.length === 0) return {} as SchemaType;
+
+				throw new Error(
+					`Invalid serialized data: Expected ${this.schema.required.length} parts, processed ${this.schema.required.length}`,
+				);
+			}
+		}
+
+		return CompactSerializer.deserialize(this.schema, slicedData);
 	}
 }

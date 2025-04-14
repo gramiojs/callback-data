@@ -179,9 +179,11 @@ describe("Serialization/Deserialization", () => {
 		const packed = schema.pack(testData);
 		const unpacked = schema.unpack(packed);
 
+		console.log(testData, packed, unpacked);
+
 		expect(unpacked).toEqual(testData);
 		expect(packed.startsWith(schema.id)).toBeTrue();
-		expect(packed).toMatchInlineSnapshot(`"UubYq4AQ;Alice;u;1;2"`);
+		expect(packed).toMatchInlineSnapshot(`"UubYq4Alice;u;1;1;2"`);
 		expect(schema.filter(packed)).toBeTrue();
 	});
 
@@ -222,10 +224,10 @@ describe("Serialization/Deserialization", () => {
 		const packed = schema.pack(testData);
 		const unpacked = schema.unpack(packed);
 
-		expect(packed).toMatchInlineSnapshot(`"E4wvhCAA;0.30000000000000004"`); // We can improve compact and make 0.30000000000000004 -> P_OuFHrhR64
+		expect(packed).toMatchInlineSnapshot(`"E4wvhC0.30000000000000004"`); // We can improve compact and make 0.30000000000000004 -> P_OuFHrhR64
 		// But there many cons like 1.23 (4 symbols) ->  fP51wpA (7 symbols)
 		// So we wants to keep floats as is
-		expect(getBytesLength(packed)).toMatchInlineSnapshot("28");
+		expect(getBytesLength(packed)).toMatchInlineSnapshot(`25`);
 		expect(unpacked?.float).toBe(testData.float);
 	});
 
