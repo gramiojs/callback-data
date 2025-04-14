@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { CallbackData } from "../src/index";
-import { getBytesLength } from "./utils";
+import { CallbackData } from "../src/index.ts";
+import { getBytesLength } from "./utils.ts";
 
 describe("CallbackData", () => {
 	test("should create instance with hashed id", () => {

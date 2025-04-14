@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { CompactSerializer } from "../src/serialization";
-import type { Schema } from "../src/types";
-import { generateMixedUUIDs, getBytesLength } from "./utils";
+import { CompactSerializer } from "../src/serialization/index.ts";
+import type { Schema } from "../src/types.ts";
+import { generateMixedUUIDs, getBytesLength } from "./utils.ts";
 
 describe("CompactSerializer", () => {
 	const testSchema: Schema = {
