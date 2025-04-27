@@ -295,6 +295,24 @@ export class CallbackData<
 			}
 		}
 
-		return CompactSerializer.deserialize(this.schema, slicedData);
+		return CompactSerializer.deserialize(this.schema, slicedData) as SchemaType;
+	}
+
+	extend<
+		OtherSchemaType extends Record<string, unknown>,
+		OtherSchemaTypeInput extends Record<string, unknown>,
+	>(
+		other: CallbackData<OtherSchemaType, OtherSchemaTypeInput>,
+	): CallbackData<
+		Prettify<SchemaType & OtherSchemaType>,
+		Prettify<SchemaTypeInput & OtherSchemaTypeInput>
+	> {
+		this.schema = {
+			required: [...this.schema.required, ...other.schema.required],
+			optional: [...this.schema.optional, ...other.schema.optional],
+		};
+
+		// TODO: Hard typings
+		return this as any;
 	}
 }

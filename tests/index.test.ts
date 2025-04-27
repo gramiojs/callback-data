@@ -356,3 +356,40 @@ describe("Serialization/Deserialization", () => {
 		expect(unpacked.text).toBe(";base64|url\\escape");
 	});
 });
+
+describe("CallbackData.extend", () => {
+	test("should merge schemas and types from two CallbackData instances", () => {
+		const schemaA = new CallbackData("A").string("foo").number("bar");
+		const schemaB = new CallbackData("B")
+			.boolean("baz")
+			.enum("role", ["admin", "user"]);
+		const extended = schemaA.extend(schemaB);
+		const packed = extended.pack({
+			foo: "hello",
+			bar: 42,
+			baz: true,
+			role: "admin",
+		});
+		const unpacked = extended.unpack(packed);
+		expect(unpacked).toEqual({
+			foo: "hello",
+			bar: 42,
+			baz: true,
+			role: "admin",
+		});
+		// biome-ignore lint/complexity/useLiteralKeys: <explanation>
+		const schema = extended["schema"];
+		expect(
+			schema.required.some((f) => f.key === "foo" && f.type === "string"),
+		).toBeTrue();
+		expect(
+			schema.required.some((f) => f.key === "bar" && f.type === "number"),
+		).toBeTrue();
+		expect(
+			schema.required.some((f) => f.key === "baz" && f.type === "boolean"),
+		).toBeTrue();
+		expect(
+			schema.required.some((f) => f.key === "role" && f.type === "enum"),
+		).toBeTrue();
+	});
+});
