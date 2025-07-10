@@ -1,5 +1,9 @@
 import { expectTypeOf } from "expect-type";
-import { CallbackData } from "../../src/index.ts";
+import {
+	CallbackData,
+	type InferDataPack,
+	type InferDataUnpack,
+} from "../../src/index.ts";
 
 const callbackDataString = new CallbackData("test").string("name", {
 	optional: true,
@@ -118,3 +122,10 @@ const defaultUnpackedDataWithDefaults = defaultCallbackData.unpack(
 expectTypeOf(defaultUnpackedDataWithDefaults).toEqualTypeOf<{
 	isActive: boolean;
 }>();
+
+{
+	const cd = new CallbackData("test").boolean("test", { default: true });
+
+	expectTypeOf<InferDataPack<typeof cd>>().toEqualTypeOf<{ test?: boolean }>();
+	expectTypeOf<InferDataUnpack<typeof cd>>().toEqualTypeOf<{ test: boolean }>();
+}

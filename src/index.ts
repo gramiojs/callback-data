@@ -316,3 +316,16 @@ export class CallbackData<
 		return this as any;
 	}
 }
+
+export type InferDataPack<T extends CallbackData> = T extends CallbackData<
+	infer SchemaType,
+	infer SchemaTypeInput
+>
+	? SchemaTypeInput
+	: never;
+export type InferDataUnpack<T extends CallbackData> = T extends CallbackData<
+	infer SchemaType,
+	infer SchemaTypeInput
+>
+	? SchemaType
+	: never;
