@@ -164,7 +164,7 @@ export class CallbackData<
 		Key extends string,
 		Optional extends boolean = false,
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		const T extends any[] = never,
+		const T extends any[] | readonly any[] = never,
 		const Default extends T[number] = never,
 	>(
 		key: Key,

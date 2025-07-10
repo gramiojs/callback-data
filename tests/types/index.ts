@@ -129,3 +129,25 @@ expectTypeOf(defaultUnpackedDataWithDefaults).toEqualTypeOf<{
 	expectTypeOf<InferDataPack<typeof cd>>().toEqualTypeOf<{ test?: boolean }>();
 	expectTypeOf<InferDataUnpack<typeof cd>>().toEqualTypeOf<{ test: boolean }>();
 }
+
+{
+	const dataList = [
+		"GramIO",
+		"Telegram",
+		"Bun",
+		"Elysia",
+		"Kravets",
+		"Biome",
+	] as const;
+
+	const cd = new CallbackData("test").enum("test", dataList, {
+		default: dataList[0],
+	});
+
+	expectTypeOf<InferDataPack<typeof cd>>().toEqualTypeOf<{
+		test?: "GramIO" | "Telegram" | "Bun" | "Elysia" | "Kravets" | "Biome";
+	}>();
+	expectTypeOf<InferDataUnpack<typeof cd>>().toEqualTypeOf<{
+		test: "GramIO" | "Telegram" | "Bun" | "Elysia" | "Kravets" | "Biome";
+	}>();
+}

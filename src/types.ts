@@ -2,7 +2,9 @@ export type Prettify<T> = { [Key in keyof T]: T[Key] } & {};
 
 type AllowedTypes = "string" | "number" | "boolean" | "enum" | "uuid";
 
-export interface FieldTypeToTsType<Enum extends unknown[]> {
+export interface FieldTypeToTsType<
+	Enum extends unknown[] | readonly unknown[],
+> {
 	string: string;
 	number: number;
 	boolean: boolean;
@@ -41,7 +43,7 @@ export type EnumField<T extends unknown[]> = {
 export interface FieldOptions<
 	T extends AllowedTypes,
 	Optional extends boolean = false,
-	Enum extends unknown[] = never,
+	Enum extends unknown[] | readonly unknown[] = never,
 	Default extends FieldTypeToTsType<Enum>[T] = never,
 > {
 	optional?: [Default] extends [never] ? Optional : true;
@@ -57,12 +59,12 @@ export type Schema = {
 	required: {
 		key: string;
 		type: AllowedTypes;
-		enumValues?: string[];
+		enumValues?: string[] | readonly string[];
 	}[];
 	optional: {
 		key: string;
 		type: AllowedTypes;
-		enumValues?: string[];
+		enumValues?: string[] | readonly string[];
 		default?: any;
 	}[];
 };
