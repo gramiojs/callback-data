@@ -357,6 +357,50 @@ describe("Serialization/Deserialization", () => {
 	});
 });
 
+describe("Nested data", () => {
+	test("should pack/unpack required nested data", () => {
+		const child = new CallbackData("child").string("text");
+		const parent = new CallbackData("parent").data("child", child);
+		const input = { child: { text: "Hello;World" } };
+		const packed = parent.pack(input);
+		const unpacked = parent.unpack(packed);
+		expect(unpacked).toEqual(input);
+	});
+
+	test("should omit optional nested data when not provided", () => {
+		const child = new CallbackData("child").string("text");
+		const parent = new CallbackData("parent").data("child", child, {
+			optional: true,
+		});
+		const packed = parent.pack({});
+		const unpacked = parent.unpack(packed);
+		expect(unpacked).toEqual({});
+	});
+
+	test("should pack/unpack optional nested data when provided", () => {
+		const child = new CallbackData("child").string("text");
+		const parent = new CallbackData("parent").data("child", child, {
+			optional: true,
+		});
+		const input = { child: { text: "Value" } };
+		const packed = parent.pack(input);
+		const unpacked = parent.unpack(packed);
+		expect(unpacked).toEqual(input);
+	});
+
+	test("should handle multi-level nested data", () => {
+		const grand = new CallbackData("grand").number("id");
+		const child = new CallbackData("child").string("text").data("inner", grand);
+		const parent = new CallbackData("parent")
+			.boolean("flag")
+			.data("child", child);
+		const input = { flag: true, child: { text: "t", inner: { id: 123 } } };
+		const packed = parent.pack(input);
+		const unpacked = parent.unpack(packed);
+		expect(unpacked).toEqual(input);
+	});
+});
+
 describe("CallbackData.extend", () => {
 	test("should merge schemas and types from two CallbackData instances", () => {
 		const schemaA = new CallbackData("A").string("foo").number("bar");

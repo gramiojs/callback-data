@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { CallbackData } from "../src/index.ts";
 import { CompactSerializer } from "../src/serialization/index.ts";
 import type { Schema } from "../src/types.ts";
 import { generateMixedUUIDs, getBytesLength } from "./utils.ts";
@@ -255,5 +256,49 @@ describe("CompactSerializer", () => {
 		const serialized = CompactSerializer.serialize(schema, {});
 
 		expect(serialized).toBe("0");
+	});
+
+	test("nested data serialization/deserialization (required)", () => {
+		const child = new CallbackData("child").string("text");
+		const schema: Schema = {
+			required: [{ key: "child", type: "data", data: child }],
+			optional: [],
+		};
+
+		const obj = { child: { text: "Hello;World" } };
+		const serialized = CompactSerializer.serialize(schema, obj);
+		const deserialized = CompactSerializer.deserialize(schema, serialized);
+
+		expect(typeof serialized).toBe("string");
+		expect(deserialized).toEqual(obj);
+	});
+
+	test("nested data serialization/deserialization (optional omitted)", () => {
+		const child = new CallbackData("child").string("text");
+		const schema: Schema = {
+			required: [],
+			optional: [{ key: "child", type: "data", data: child }],
+		};
+
+		const serialized = CompactSerializer.serialize(schema, {});
+		const deserialized = CompactSerializer.deserialize(schema, serialized);
+
+		expect(serialized).toBe("0");
+		expect(deserialized).toEqual({});
+	});
+
+	test("nested data present in optional field", () => {
+		const child = new CallbackData("child").string("text");
+		const schema: Schema = {
+			required: [],
+			optional: [{ key: "child", type: "data", data: child }],
+		};
+
+		const obj = { child: { text: "Value" } };
+		const serialized = CompactSerializer.serialize(schema, obj);
+		const deserialized = CompactSerializer.deserialize(schema, serialized);
+
+		expect(serialized.startsWith("1;")).toBeTrue();
+		expect(deserialized).toEqual(obj);
 	});
 });

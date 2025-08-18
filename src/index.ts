@@ -15,6 +15,11 @@ import type {
 	Schema,
 } from "./types.ts";
 
+export type {
+	InferDataPack,
+	InferDataUnpack,
+} from "./types.ts";
+
 /**
  * Class-helper that construct schema and serialize/deserialize with {@link CallbackData.pack} and {@link CallbackData.unpack} methods
  *
@@ -220,6 +225,34 @@ export class CallbackData<
 		return this;
 	}
 
+	data<
+		Key extends string,
+		Optional extends boolean = false,
+		const Data extends CallbackData = never,
+	>(
+		key: Key,
+		data: Data,
+		options?: FieldOptions<"data", Optional, never>,
+	): CallbackData<
+		Prettify<
+			SchemaType & AddFieldOutput<"data", Key, Optional, never, never, Data>
+		>,
+		Prettify<
+			SchemaTypeInput & AddFieldInput<"data", Key, Optional, never, never, Data>
+		>
+	> {
+		const isOptional = options?.optional ?? false;
+
+		this.schema[isOptional ? "optional" : "required"].push({
+			key,
+			type: "data",
+			data,
+		});
+
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		return this as any;
+	}
+
 	/**
 	 * Method that return {@link RegExp} to match this {@link CallbackData}
 	 */
@@ -316,16 +349,3 @@ export class CallbackData<
 		return this as any;
 	}
 }
-
-export type InferDataPack<T extends CallbackData> = T extends CallbackData<
-	infer SchemaType,
-	infer SchemaTypeInput
->
-	? SchemaTypeInput
-	: never;
-export type InferDataUnpack<T extends CallbackData> = T extends CallbackData<
-	infer SchemaType,
-	infer SchemaTypeInput
->
-	? SchemaType
-	: never;

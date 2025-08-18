@@ -119,6 +119,14 @@ export class CompactSerializer {
 			}
 			case "boolean":
 				return value ? "1" : "0";
+			case "data": {
+				if (!field.data) {
+					throw new Error(`Missing nested schema for field '${field.key}'`);
+				}
+				// biome-ignore lint/complexity/useLiteralKeys: <explanation>
+				const inner = CompactSerializer.serialize(field.data["schema"], value);
+				return Buffer.from(inner, "utf8").toString("base64url");
+			}
 			default:
 				throw new Error(`Unsupported type: ${field.type}`);
 		}
@@ -163,6 +171,13 @@ export class CompactSerializer {
 			}
 			case "boolean":
 				return value === "1";
+			case "data": {
+				if (!field.data) {
+					throw new Error(`Missing nested schema for field '${field.key}'`);
+				}
+				const inner = Buffer.from(value, "base64url").toString("utf8");
+				return CompactSerializer.deserialize(field.data["schema"], inner);
+			}
 			default:
 				throw new Error(`Unsupported type: ${field.type}`);
 		}

@@ -151,3 +151,17 @@ expectTypeOf(defaultUnpackedDataWithDefaults).toEqualTypeOf<{
 		test: "GramIO" | "Telegram" | "Bun" | "Elysia" | "Kravets" | "Biome";
 	}>();
 }
+
+{
+	const cd = new CallbackData("test").string("test");
+
+	const cd2 = new CallbackData("test2").string("test").data("test2", cd);
+
+	cd2.pack({
+		test: "test",
+		test2: {
+			test: "test",
+		},
+	});
+	cd2.unpack("test");
+}
