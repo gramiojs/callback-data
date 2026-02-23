@@ -83,6 +83,10 @@ export type IsOptionalType<T> = {
 	? true
 	: false;
 
+export type SafeUnpackResult<T> =
+	| { success: true; data: T }
+	| { success: false; error: Error };
+
 export type InferDataPack<T extends CallbackData> = T extends CallbackData<
 	infer SchemaType,
 	infer SchemaTypeInput

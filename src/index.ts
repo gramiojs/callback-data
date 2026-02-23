@@ -12,12 +12,14 @@ import type {
 	FieldOptions,
 	IsOptionalType,
 	Prettify,
+	SafeUnpackResult,
 	Schema,
 } from "./types.ts";
 
 export type {
 	InferDataPack,
 	InferDataUnpack,
+	SafeUnpackResult,
 } from "./types.ts";
 
 /**
@@ -329,6 +331,33 @@ export class CallbackData<
 		}
 
 		return CompactSerializer.deserialize(this.schema, slicedData) as SchemaType;
+	}
+
+	/**
+	 * Safe version of {@link CallbackData.unpack} that never throws.
+	 * Returns `{ success: true, data }` on success or `{ success: false, error }` on failure.
+	 *
+	 * Useful for handling outdated callback data from old inline keyboards after schema changes.
+	 *
+	 * @example
+	 * ```ts
+	 * const result = someData.safeUnpack(data);
+	 * if (result.success) {
+	 *     console.log(result.data);
+	 * } else {
+	 *     context.answerCallbackQuery("This button is outdated!");
+	 * }
+	 * ```
+	 */
+	safeUnpack(data: string): SafeUnpackResult<SchemaType> {
+		try {
+			return { success: true, data: this.unpack(data) };
+		} catch (error) {
+			return {
+				success: false,
+				error: error instanceof Error ? error : new Error(String(error)),
+			};
+		}
 	}
 
 	extend<

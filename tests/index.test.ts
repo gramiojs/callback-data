@@ -437,3 +437,72 @@ describe("CallbackData.extend", () => {
 		).toBeTrue();
 	});
 });
+
+describe("CallbackData.safeUnpack", () => {
+	test("should return success for valid data", () => {
+		const schema = new CallbackData("safe").number("id").string("name");
+		const packed = schema.pack({ id: 42, name: "Alice" });
+		const result = schema.safeUnpack(packed);
+
+		expect(result.success).toBeTrue();
+		if (result.success) {
+			expect(result.data).toEqual({ id: 42, name: "Alice" });
+		}
+	});
+
+	test("should return error for mismatched CallbackData id", () => {
+		const schema = new CallbackData("safe");
+		const result = schema.safeUnpack("wrong_data_string");
+
+		expect(result.success).toBeFalse();
+		if (!result.success) {
+			expect(result.error).toBeInstanceOf(Error);
+		}
+	});
+
+	test("should return error for corrupted serialized data", () => {
+		const schema = new CallbackData("safe").number("id").string("name");
+		const result = schema.safeUnpack(`${schema.id}not;enough;parts;here`);
+
+		expect(result.success).toBeFalse();
+		if (!result.success) {
+			expect(result.error).toBeInstanceOf(Error);
+		}
+	});
+
+	test("should handle empty schema", () => {
+		const schema = new CallbackData("empty-safe");
+		const packed = schema.pack();
+		const result = schema.safeUnpack(packed);
+
+		expect(result.success).toBeTrue();
+		if (result.success) {
+			expect(result.data).toEqual({});
+		}
+	});
+
+	test("should return error for schema migration (added required field)", () => {
+		const oldSchema = new CallbackData("migrate").number("id");
+		const packed = oldSchema.pack({ id: 1 });
+
+		const newSchema = new CallbackData("migrate").number("id").string("name");
+		const result = newSchema.safeUnpack(packed);
+
+		expect(result.success).toBeFalse();
+	});
+
+	test("should handle schema migration (added optional field)", () => {
+		const oldSchema = new CallbackData("migrate-opt").number("id");
+		const packed = oldSchema.pack({ id: 1 });
+
+		const newSchema = new CallbackData("migrate-opt")
+			.number("id")
+			.string("note", { optional: true });
+		const result = newSchema.safeUnpack(packed);
+
+		expect(result.success).toBeTrue();
+		if (result.success) {
+			expect(result.data.id).toBe(1);
+		}
+	});
+});
