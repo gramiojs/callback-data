@@ -30,7 +30,7 @@ jobs:
               run: bun jsr
 
             - name: Type-check
-              run: tsc --noEmit 
+              run: bunx tsc --noEmit
 
             - name: Test
               run: bun test:memory
