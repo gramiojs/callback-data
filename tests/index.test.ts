@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, spyOn, test } from "bun:test";
 import { CallbackData } from "../src/index.ts";
 import { getBytesLength } from "./utils.ts";
 
@@ -283,6 +283,94 @@ describe("Serialization/Deserialization", () => {
 		const unpacked = schema.unpack(schema.pack(testData));
 
 		expect(unpacked).toEqual({});
+	});
+
+	test("should treat explicit undefined for optional field as omitted", () => {
+		const schema = new CallbackData("example-action")
+			.string("itemId")
+			.enum("deliveryMethod", ["email", "sms"], { optional: true });
+
+		const withUndefined = schema.pack({
+			itemId: "123",
+			deliveryMethod: undefined,
+		});
+		const withoutProperty = schema.pack({ itemId: "123" });
+
+		expect(withUndefined).toBe(withoutProperty);
+		expect(schema.unpack(withUndefined)).toEqual({ itemId: "123" });
+	});
+
+	test("should treat explicit undefined as omitted for every field type", () => {
+		const nested = new CallbackData("nested").number("id");
+		const schema = new CallbackData("all-optional-undefined")
+			.string("comment", { optional: true })
+			.number("rating", { optional: true })
+			.boolean("isAdmin", { optional: true })
+			.uuid("traceId", { optional: true })
+			.enum("role", ["user", "admin"], { optional: true })
+			.data("payload", nested, { optional: true });
+
+		const withUndefined = schema.pack({
+			comment: undefined,
+			rating: undefined,
+			isAdmin: undefined,
+			traceId: undefined,
+			role: undefined,
+			payload: undefined,
+		});
+
+		expect(withUndefined).toBe(schema.pack({}));
+		expect(schema.unpack(withUndefined)).toEqual({});
+	});
+
+	test("should fall back to default when optional field is explicitly undefined", () => {
+		const schema = new CallbackData("undefined-default").enum(
+			"status",
+			["active", "inactive"],
+			{ optional: true, default: "active" },
+		);
+
+		const packed = schema.pack({ status: undefined });
+
+		expect(schema.unpack(packed).status).toBe("active");
+	});
+
+	test("should not log anything when unpacking omitted optional fields", () => {
+		const schema = new CallbackData("quiet-optional")
+			.string("attemptId")
+			.number("firstDigit")
+			.number("digit", { optional: true });
+
+		const packed = schema.pack({ attemptId: "ABCDEF", firstDigit: 7 });
+
+		const error = spyOn(console, "error").mockImplementation(() => {});
+		const warn = spyOn(console, "warn").mockImplementation(() => {});
+		const log = spyOn(console, "log").mockImplementation(() => {});
+
+		try {
+			expect(schema.unpack(packed)).toEqual({
+				attemptId: "ABCDEF",
+				firstDigit: 7,
+			});
+			expect(error).not.toHaveBeenCalled();
+			expect(warn).not.toHaveBeenCalled();
+			expect(log).not.toHaveBeenCalled();
+		} finally {
+			error.mockRestore();
+			warn.mockRestore();
+			log.mockRestore();
+		}
+	});
+
+	test("should throw on explicit undefined for a required field", () => {
+		const schema = new CallbackData("required-undefined")
+			.string("itemId")
+			.boolean("isAdmin");
+
+		expect(() =>
+			// biome-ignore lint/suspicious/noExplicitAny: intentionally invalid input
+			schema.pack({ itemId: "123", isAdmin: undefined } as any),
+		).toThrow("Missing value for required field 'isAdmin'");
 	});
 
 	test("should handle UUID v4 and v7", () => {

@@ -296,7 +296,14 @@ export class CallbackData<
 	) {
 		const data = args[0] ?? {};
 
-		return `${this.id}${Object.keys(data).length > 0 ? CompactSerializer.serialize(this.schema, data) : ""}`;
+		// required fields always go through the serializer (so missing values are
+		// reported), optional-only schemas stay compact unless a value is set —
+		// explicit `undefined` counts as "not set", same as an omitted property
+		const shouldSerialize =
+			this.schema.required.length > 0 ||
+			Object.values(data).some((value) => value !== undefined);
+
+		return `${this.id}${shouldSerialize ? CompactSerializer.serialize(this.schema, data) : ""}`;
 	}
 
 	/**

@@ -8,16 +8,23 @@ export class CompactSerializer {
 		const parts: string[] = [];
 
 		for (const field of schema.required) {
-			parts.push(this.serializeValue(field, obj[field.key]));
+			const value = obj[field.key];
+			if (value === undefined) {
+				throw new Error(`Missing value for required field '${field.key}'`);
+			}
+
+			parts.push(this.serializeValue(field, value));
 		}
 
 		let bitmask = 0;
 		const optionalParts: string[] = [];
 		for (let i = 0; i < schema.optional.length; i++) {
 			const field = schema.optional[i];
-			if (Object.prototype.hasOwnProperty.call(obj, field.key)) {
+			const value = obj[field.key];
+			// explicit `undefined` is treated the same as an omitted property
+			if (value !== undefined) {
 				bitmask |= 1 << i;
-				optionalParts.push(this.serializeValue(field, obj[field.key]));
+				optionalParts.push(this.serializeValue(field, value));
 			}
 		}
 
@@ -57,9 +64,8 @@ export class CompactSerializer {
 				result[field.key] = this.deserializeValue(field, parts[ptr++]);
 			} else if (field.default !== undefined) {
 				result[field.key] = field.default;
-			} else {
-				console.error("missing", field.key, "at", ptr);
 			}
+			// an omitted optional field without a default is simply absent from the result
 		}
 
 		if (ptr !== parts.length) {
