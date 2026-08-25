@@ -22,6 +22,8 @@ export type {
 	SafeUnpackResult,
 } from "./types.ts";
 
+export { decode, embed, encode, extract } from "./text.ts";
+
 /**
  * Class-helper that construct schema and serialize/deserialize with {@link CallbackData.pack} and {@link CallbackData.unpack} methods
  *
@@ -258,7 +260,7 @@ export class CallbackData<
 	/**
 	 * Method that return {@link RegExp} to match this {@link CallbackData}
 	 */
-	regexp() {
+	regexp(): RegExp {
 		// return new RegExp(`^${this.id}\\|(.+)$`);
 		return new RegExp(`^${this.id}|${this.legacyId}\\|(.+)$`);
 	}
@@ -267,7 +269,7 @@ export class CallbackData<
 	 * Method that return `true` if data is this {@link CallbackData}
 	 * @param data String with data
 	 */
-	filter(data: string) {
+	filter(data: string): boolean {
 		return data.startsWith(this.id) || data.startsWith(`${this.legacyId}|`);
 	}
 
@@ -293,7 +295,7 @@ export class CallbackData<
 		...args: IsOptionalType<SchemaTypeInput> extends true
 			? [data?: T | undefined]
 			: [data: T]
-	) {
+	): string {
 		const data = args[0] ?? {};
 
 		// required fields always go through the serializer (so missing values are
