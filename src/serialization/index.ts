@@ -56,6 +56,8 @@ export class CompactSerializer {
 		let bitmask = 0;
 		if (schema.optional.length > 0 && ptr < parts.length) {
 			bitmask = Number.parseInt(parts[ptr++], 36);
+		} else {
+			return result;
 		}
 
 		for (let i = 0; i < schema.optional.length; i++) {
